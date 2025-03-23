@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>viewGroupOptions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;700&family=Lora&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="bg-[var(--color-base)] flex items-center justify-center min-h-screen"
+    style="font-family: var(--font-body);">
+    <div
+        class="flex flex-col items-center justify-center h-full w-full max-w-2xl lg:max-w-3xl bg-[var(--color-other)] p-8 md:p-10 lg:p-12 shadow-lg rounded-lg">
+
+        <!-- Modo Visual: muestra el nombre y la descripción -->
+        <div id="groupHeaderDisplay" class="w-full mb-6">
+            <!-- Se asigna el ID del grupo en un data attribute -->
+            <h2 id="groupName" data-group-id="123"
+                class="title-font font-bold text-center text-[var(--color-headers)] font-titles">
+                Group Name
+            </h2>
+            <p id="groupDescription" class="base-font-size text-center text-[var(--color-text)] mt-2">
+                Group description goes here.
+            </p>
+            <!-- Botón para activar la edición (solo visible para administradores) -->
+        </div>
+
+        <!-- Modo Edición: formulario para editar nombre y descripción (oculto por defecto) -->
+        <div id="groupHeaderEdit" class="w-full mb-6 hidden flex-col items-center">
+            <input type="text" id="editGroupName" autocomplete="off" list="none" class="w-full p-3 border border-[var(--color-dark)] rounded mb-3"
+                placeholder="Group Name">
+            <textarea id="editGroupDescription" class="w-full p-3 border border-[var(--color-dark)] rounded mb-3"
+                rows="3" placeholder="Group Description"></textarea>
+            <div class="flex justify-between w-full">
+                <button id="saveGroupBtn"
+                    class="group relative flex h-10 w-auto mx-auto items-center justify-center overflow-hidden rounded-full border-2 border-[var(--color-dark)] bg-[var(--color-dark)] px-8 font-semibold text-white transition-all duration-200 hover:bg-transparent hover:text-white hover:border-white focus:outline-none font-titles active:translate-x-[3px] active:translate-y-[3px]">
+                    Guardar
+                </button>
+                <button id="cancelEditGroupBtn"
+                    class="group relative flex h-10 w-auto mx-auto items-center justify-center overflow-hidden rounded-full border-2 border-[var(--color-dark)] bg-[var(--color-dark)] px-8 font-semibold text-white transition-all duration-200 hover:bg-transparent hover:text-white hover:border-white focus:outline-none font-titles active:translate-x-[3px] active:translate-y-[3px]">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+        <div id="addUsersBtn" class="hidden">
+            <button title="Add New" class="group cursor-pointer outline-none hover:rotate-90 duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="35px" height="35px" viewBox="0 0 24 24"
+                    class="stroke-[#586642] fill-none group-hover:fill-[#8ea36b] group-active:stroke-indigo-200 group-active:duration-0 duration-300">
+                    <path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                        stroke-width="1.5"></path>
+                    <path d="M8 12H16" stroke-width="1.5"></path>
+                    <path d="M12 16V8" stroke-width="1.5"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="flex flex-col md:flex-row md:space-x-4 w-full">
+            <!-- Lista de Miembros -->
+            <div class="w-full md:w-full">
+                <label id="membersTitle"
+                    class="block mini-font-size font-medium text-[var(--color-text)] mb-2">Miembros:</label>
+                <div id="groupMembers"
+                    class="border border-[var(--color-border)] p-3 rounded-lg max-h-40 overflow-y-auto">
+                    <!-- Los miembros se insertarán aquí dinámicamente -->
+                </div>
+            </div>
+        </div>
+        <div id="addUsersForm" class="hidden mt-4 w-full">
+            <label class="block mini-font-size font-medium text-[var(--color-text)] mb-2">Selecciona usuarios a
+                agregar:</label>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-40 overflow-y-auto border border-[var(--color-border)] p-3 rounded-lg"
+                id="availableMembers">
+                <!-- Aquí se insertarán los miembros disponibles -->
+            </div>
+        </div>
+        <div class="flex flex-col md:flex-row md:justify-between space-y-3 md:space-y-0 md:space-x-4 mt-8">
+            <button type="submit" id="submitAddUsers"
+                class="hidden items-center justify-center px-4 py-2 base-font-size font-medium leading-6 text-[var(--color-text)] whitespace-no-wrap bg-[var(--color-user)] border-2 border-[var(--color-dark)] rounded-full shadow-sm hover:bg-[var(--color-dark)]  hover:text-[var(--color-base)]  hover:border-[var(--color-base)]  focus:outline-none font-titles">
+                Agregar Usuarios
+            </button>
+            <button type="button" id="cancelAddUsers"
+                class="hidden items-center justify-center px-4 py-2 base-font-size font-medium leading-6 text--[var(--color-text)] whitespace-no-wrap bg-[var(--color-user)] border-2 border-[var(--color-dark)] rounded-full shadow-sm hover:bg-[var(--color-dark)]  hover:text-[var(--color-base)]  hover:border-[var(--color-base)] focus:outline-none font-titles">
+                Cancelar
+            </button>
+        </div>
+        <div class="flex flex-col md:flex-row md:justify-between space-y-3 md:space-y-0 md:space-x-4 w-full mt-4">
+            <button type="button" id="closeGroupOptionsBtn"
+                class="flex items-center justify-center px-4 py-2 base-font-size font-medium leading-6 text--[var(--color-text)] whitespace-no-wrap bg-[var(--color-user)] border-2 border-[var(--color-dark)] rounded-full shadow-sm hover:bg-[var(--color-dark)]  hover:text-[var(--color-base)]  hover:border-[var(--color-base)] focus:outline-none font-titles">
+                Cerrar
+            </button>
+            <!-- Botón para abandonar el grupo -->
+            <button type="button" id="leaveGroupBtn"
+                class="flex items-center justify-center px-4 py-2 base-font-size font-medium leading-6 text--[var(--color-text)] whitespace-no-wrap bg-[var(--color-user)] border-2 border-[var(--color-dark)] rounded-full shadow-sm hover:bg-[var(--color-dark)]  hover:text-[var(--color-base)]  hover:border-[var(--color-base)] focus:outline-none font-titles">
+                Salir del grupo
+            </button>
+        </div>
+
+        <div id="createGroupError" class="text-red-500 mini-font-size mt-2 hidden"></div>
+    </div>
+    <script src="../js/viewGroupOptions.js"></script>
+
+</html>
