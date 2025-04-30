@@ -10,7 +10,7 @@ class Matias(object):
             user="root",
             #user="matiasianbastero",
             #password="49864854A",
-            db="matias",
+            db="homely",
             #db="damahe",
             charset="utf8mb4",
             autocommit=True,
