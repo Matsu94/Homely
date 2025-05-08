@@ -1,4 +1,4 @@
-import { fetchUsersFromGroup, removeUserFromGroup, updateUserToAdmin, leaveGroup, fetchGroupInfo, updateGroupDescription, updateGroupName, fetchUsersForGroup, addUsersToGroup } from "../assets/fetching.js";
+import { fetchUsersFromGroup, removeUserFromGroup, updateUserToAdmin, leaveGroup, fetchGroupInfo, updateGroupDescription, updateGroupName } from "../assets/fetching.js";
 import { closeChatWindow } from "./closeChatWindow.js";
 import { currentUserId } from "../constants/const.js";
 import * as errors from "../errors/errors.js";
@@ -18,13 +18,13 @@ export async function openGroupOptions(group_id) {
         const isViewerAdmin = users.some(user => user.user_id === currentUserId && user.is_admin);
 
         // Cargar la estructura HTML (vista de grupo) desde tu componente
-        const response = await fetch("/WHATSAPP/frontend/components/viewGroupOptions.html");
+        const response = await fetch("/Homely/frontend/components/viewGroupOptions.html");
         const html = await response.text();
         chatWindow.innerHTML = html;
 
         // Ocultar la lista de usuarios y chats, y mostrar la vista de opciones del grupo
         document.getElementById("userListDiv").classList.add("hidden");
-        document.getElementById("chatList").classList.add("hidden");
+        document.getElementById("sections").classList.add("hidden");
         chatWindow.classList.remove("hidden");
 
         // Configurar la vista visual: asignar nombre y descripción
@@ -100,7 +100,7 @@ export async function openGroupOptions(group_id) {
         closeGroupOptionsBtn.addEventListener("click", () => {
             closeChatWindow();
             document.getElementById("userListDiv").classList.remove("hidden");
-            document.getElementById("chatList").classList.remove("hidden");
+            document.getElementById("sections").classList.remove("hidden");
             chatWindow.classList.add("hidden");
         });
 

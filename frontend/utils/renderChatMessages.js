@@ -41,11 +41,7 @@ export function renderChatMessages(messages, options = {}) {
 
   messages.forEach((msg) => {
     const currentUsername = sessionStorage.getItem('username') || "";
-    let isMine = (msg.sender_name === currentUsername);
-
-    if (msg.is_group) {
-      isMine = (msg.user_name === currentUsername);
-    }
+    let isMine = (msg.user_name === currentUsername);
 
     const msgWrapper = document.createElement("div");
     msgWrapper.classList.add("mb-2", "flex", isMine ? "justify-end" : "justify-start");

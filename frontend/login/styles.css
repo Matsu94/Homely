@@ -14,6 +14,8 @@
     --color-text: #000000;   /* Texto principal en modo claro */
     --color-border: #d9d3d8; /* Bordes en modo claro */
     --color-alert: #dd0088;  /* Color de alerta */
+
+    --color-link: #56F; /* Texto links en modo claro */
   }
 
   /* ========== MODO OSCURO (dark) ========== */
@@ -28,6 +30,8 @@
     --color-text: #ffffff;    /*o Texto principal en modo oscuro */
     --color-border: #4f4f4f;  /* Bordes en modo oscuro */
     --color-alert: #dd0088;  /* Color de alerta */
+
+    --color-link: #b4b4ff; /* Texto links en modo oscuro */
   }
   :root[data-theme="highContrast"] {
     --color-user: #4DAF7C;   /* Verde vibrante, pero sin ser fluorescente */
@@ -39,6 +43,8 @@
     --color-text: #000000;    /* Texto negro puro */
     --color-border: #9a9898;  /* Bordes oscuros */
     --color-alert: #dd0088;  /* Color de alerta */
+
+    --color-link: #5900ff; /* Texto links en modo oscuro */
   }
 
   :root {

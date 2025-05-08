@@ -63,7 +63,7 @@ CREATE TABLE `group_message_status` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Periodic/occasional chores
-CREATE TABLE `periodic_chores` ( 
+CREATE TABLE `chores` ( 
   `chore_id` INT AUTO_INCREMENT PRIMARY KEY,
   `group_id` INT UNSIGNED NOT NULL,
   `title` VARCHAR(255) NOT NULL,
@@ -86,13 +86,26 @@ CREATE TABLE `chore_completions` (
   `proof_image_url` VARCHAR(500) DEFAULT NULL,
   PRIMARY KEY (`chore_id`, `user_id`, `completed_at`),
   INDEX (`user_id`),
-  FOREIGN KEY (`chore_id`) REFERENCES periodic_chores(`chore_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`chore_id`) REFERENCES chores(`chore_id`) ON DELETE CASCADE,
   FOREIGN KEY (`user_id`) REFERENCES users(`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Add foreign key to groups (creator_id)
-ALTER TABLE `groups`
-  ADD CONSTRAINT `fk_groups_creator` FOREIGN KEY (`creator_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+CREATE TABLE `house_stock` (
+  `group_id` INT UNSIGNED NOT NULL,
+  `items` JSON NOT NULL,  -- example: {"milk": "1L", "pasta": "3 packs", "soap": "2 bars"},
+  `last_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`group_id`),
+  FOREIGN KEY (`group_id`) REFERENCES groups(`group_id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `group_invitation` (
+  `group_id` INT UNSIGNED NOT NULL,
+  `group_code` INT NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  PRIMARY KEY (`group_id`),
+  FOREIGN KEY (`group_id`) REFERENCES groups(`group_id`) ON DELETE CASCADE
+);
+
 
 -- Dummy user data
 INSERT INTO `users` (`user_id`, `username`, `password`) VALUES
