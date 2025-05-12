@@ -14,6 +14,7 @@
     --color-text: #000000;   /* Texto principal en modo claro */
     --color-border: #d9d3d8; /* Bordes en modo claro */
     --color-alert: #dd0088;  /* Color de alerta */
+    --color-delete: #dd0025;  /* Color de borrar */
 
     --color-link: #56F; /* Texto links en modo claro */
   }
@@ -30,6 +31,7 @@
     --color-text: #ffffff;    /*o Texto principal en modo oscuro */
     --color-border: #4f4f4f;  /* Bordes en modo oscuro */
     --color-alert: #dd0088;  /* Color de alerta */
+    --color-delete: #750014;  /* borrar en modo oscuro */
 
     --color-link: #b4b4ff; /* Texto links en modo oscuro */
   }

@@ -29,12 +29,29 @@ $(document).ready(function () {
 
     if (passwordInput.attr("type") === "password") {
       passwordInput.attr("type", "text");
-      eyeOpen.addClass("hidden");
-      eyeSlash.removeClass("hidden");
+      eyeOpen.removeClass("hidden");    // Show open eye
+      eyeSlash.addClass("hidden");      // Hide slashed eye
     } else {
       passwordInput.attr("type", "password");
-      eyeOpen.removeClass("hidden");
-      eyeSlash.addClass("hidden");
+      eyeOpen.addClass("hidden");       // Hide open eye
+      eyeSlash.removeClass("hidden");   // Show slashed eye
+    }
+  });
+
+  // 2.5) Toggle Show/Hide Confirmation
+  $(document).on("click", "#toggleConfirmation", function () {
+    const passwordInput = $("#confirmation");
+    const eyeOpenC = $("#eyeOpenC");
+    const eyeSlashC = $("#eyeSlashC");
+
+    if (passwordInput.attr("type") === "password") {
+      passwordInput.attr("type", "text");
+      eyeOpenC.removeClass("hidden");    // Show open eye
+      eyeSlashC.addClass("hidden");      // Hide slashed eye
+    } else {
+      passwordInput.attr("type", "password");
+      eyeOpenC.addClass("hidden");       // Hide open eye
+      eyeSlashC.removeClass("hidden");   // Show slashed eye
     }
   });
 

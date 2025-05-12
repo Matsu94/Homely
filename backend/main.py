@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from typing import Dict, Set
 import json
+import secrets
+import string
 
 app = FastAPI()
 app.add_middleware(
@@ -134,6 +136,11 @@ def change_state(
 def create_group(group: Group, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
     return db.createGroup(group)
 
+@app.post("/add_tasks")
+def add_tasks(payload: TaskPayload, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    return db.addTasksToGroup(payload.group_id, payload.tasks)
+
+
 # Endpoint to get members of a group
 @app.get("/get_members/{group_id}")
 def get_members(group_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
@@ -143,13 +150,21 @@ def get_members(group_id: int, db: Matias = Depends(get_db), user: str = Depends
 def group_info(group_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
     return db.groupinfo(group_id)
 
+@app.get("/create_group_invitation/{group_id}")
+def create_group_invitation(group_id: int, length = 10, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    user_id = user['user_id']
+    chars = string.ascii_uppercase + string.digits  # A-Z, 0-9
+    invitation_code = ''.join(secrets.choice(chars) for _ in range(length))
+    db.saveInvitationCode(group_id, invitation_code)
+    return {"invitation_code": invitation_code} # TENGO QUE CREAR EL STORAGE PARA GROUP ID DEL USER
+
 # Endpoint to add a user to a group (3g)
-@app.put("/add_users/{group_id}")
-def add_users_to_group(group_id: int, newMembers: NewMembers, db: Matias = Depends(get_db), admin: str = Depends(get_current_user)):
-    res = 0
-    for member_id in newMembers.Members:
-        res += db.addUsersToGroup(group_id, member_id)
-    return {"message": "Usuarios añadidos correctamente.", "result": res}
+# @app.put("/add_users/{group_id}")
+# def add_users_to_group(group_id: int, newMembers: NewMembers, db: Matias = Depends(get_db), admin: str = Depends(get_current_user)):
+#     res = 0
+#     for member_id in newMembers.Members:
+#         res += db.addUsersToGroup(group_id, member_id)
+#     return {"message": "Usuarios añadidos correctamente.", "result": res}
 
 # Endpoint to delete a user from a group (3g)
 @app.delete("/remove_user/{group_id}/{member_id}")
@@ -202,7 +217,7 @@ async def login(user: User, db: Matias = Depends(get_db)):
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"username": authenticated_user["username"], "user_id": authenticated_user["user_id"]}, expires_delta=access_token_expires
+        data={"username": authenticated_user["username"], "user_id": authenticated_user["user_id"], "group_id": authenticated_user["group_id"]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer", "user_id": authenticated_user["user_id"]}
 
@@ -211,3 +226,15 @@ async def login(user: User, db: Matias = Depends(get_db)):
 def register_user(user: User, db: Matias = Depends(get_db)):
     user_id = db.registerUser(user)
     return {"message": "User registered successfully", "user_id": user_id}
+
+@app.post("/join_group")
+def join_group(group_code: str, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    user_id = user['user_id']
+    group_id = db.checkInvitationCode(group_code)
+    if group_id is None:
+        raise HTTPException(status_code=400, detail="Invalid group code")
+    db.joinGroup(group_id, user_id)
+    db.deleteInvitation(group_code, group_id)
+    # if result == 0: # METER CONDICION, SI USER TIENE GRUPO NO PUEDE ACCEDER A OPCIONESUSERNUEVO
+    #     raise HTTPException(status_code=400, detail="User already in group")
+    return {"message": "User joined group successfully"}

@@ -18,10 +18,8 @@ class Message(BaseModel):
     Message_ID: Optional[int] = None
     Content: str
     Date: Optional[datetime] = None # Fecha de envío
-    Status: int = 1  # Foreign key, required
     Sender: str # Foreign key, required
     Receiver: str # Foreign key, required
-    isGroup: bool # Si es un mensaje de grupo o no
 
     @field_validator("Content")
     def validate_content(cls, value):
@@ -35,7 +33,22 @@ class Group(BaseModel):
     Name: str
     Description: Optional[str] = None
     Creator_ID: int 
+    Address: Optional[str] = None
     Members: list[int] = []  # Lista de miembros del grupo
+
+class Task(BaseModel):
+    task_id: Optional[int] = None
+    title: str
+    description: Optional[str] = None
+    type: str  # Tipo de tarea (recurrente o no recurrente)
+    periodicity: Optional[str] = None  # Periodicidad de la tarea (diaria, semanal, mensual)
+    date: Optional[datetime] = None  # Fecha de la tarea
+    days: Optional[list[str]] = None  # Días específicos de la tarea
+    
+class TaskPayload(BaseModel):
+    group_id: int
+    tasks: list[Task]
+
 
     #Modelo para actualizar el nombre de un grupo
 class NameUpdate(BaseModel):

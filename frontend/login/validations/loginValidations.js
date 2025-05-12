@@ -51,6 +51,7 @@ async function validarLogin(event) {
     // Si no hay errores, llamar a fetchToken
     if (errores.username.length === 0 && errores.password.length === 0) {
         try {
+            console.log("Fetching token validation...");
             await fetchToken(username, password);
         } catch (error) {
             document.getElementById('passwordError').textContent = `${errors.loginError}`;

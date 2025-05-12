@@ -11,6 +11,8 @@ async function validateRegister(e) {
     const passwordError = document.getElementById("passwordError");
     const confirmationError = document.getElementById("confirmationError");
 
+    const strongPassword = /^(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
+
     // Clear previous errors
     usernameError.textContent = "";
     passwordError.textContent = "";
@@ -23,8 +25,8 @@ async function validateRegister(e) {
         isValid = false;
     }
 
-    if (password.length < 6) {
-        passwordError.textContent = "La contraseña debe tener al menos 6 caracteres.";
+    if (!strongPassword.test(password)) {
+        passwordError.textContent = "La contraseña debe tener al menos 8 caracteres 1 numero y 1 caracter especial.";
         isValid = false;
     }
 
@@ -36,7 +38,7 @@ async function validateRegister(e) {
     if (!isValid) return;
 
     try {
-        await registerUser({ username, password });
+        await registerUser(username, password);
     } catch (err) {
         console.error(err);
         alert("Error al registrar el usuario. Intenta más tarde.");

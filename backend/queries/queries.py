@@ -9,7 +9,12 @@ ORDER BY m.date DESC
 LIMIT 1;
 """
 
-checkUser = "SELECT * FROM users WHERE username = %s"
+checkUser = """
+SELECT u.*, gm.group_id
+FROM users u
+LEFT JOIN group_members gm ON u.user_id = gm.user_id
+WHERE u.username = %s
+"""
 
 sendMessage = """
 INSERT INTO messages (content, date, sender_id, receiver_id)
@@ -76,18 +81,29 @@ WHERE message_id = %s
 """
 
 createGroup = """
-INSERT INTO groups (name, description, creator_id)
-VALUES (%s, %s, %s)
+INSERT INTO groups (name, description, creator_id, address)
+VALUES (%s, %s, %s, %s)
 """
+
+addTaskToGroup = """
+INSERT INTO chores (group_id, title, description, type, periodicity, specific_days, date_limit)
+VALUES (%s, %s, %s, %s, %s, %s, %s)
+"""
+
 
 insertGroupAdmin = """
 INSERT INTO group_members (group_id, user_id, is_admin)
 VALUES (%s, %s, 1) 
 """
 
-insertGroupMemnber = """
-INSERT INTO group_members (group_id, user_id, is_admin)
-VALUES (%s, %s, 0)
+# insertGroupMemnber = """
+# INSERT INTO group_members (group_id, user_id, is_admin)
+# VALUES (%s, %s, 0)
+# """
+
+saveInvitationCode = """
+INSERT INTO group_invitations (group_id, invitation_code)
+VALUES (%s, %s)
 """
 
 esAdmin = """
@@ -179,4 +195,19 @@ WHERE group_id = %s
 registerUser = """
 INSERT INTO users (username, password)
 VALUES (%s, %s)
+"""
+
+checkInvitationCode = """
+SELECT group_id from group_invitations WHERE code = %s
+"""
+
+joinGroup = """
+INSERT INTO group_members (group_id, user_id, is_admin)
+VALUES (%s, %s, 0)
+"""
+
+deleteInvitation = """
+DELETE FROM group_invitations
+WHERE code = %s
+AND group_id = %s
 """

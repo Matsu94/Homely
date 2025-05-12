@@ -15,11 +15,11 @@
   <link rel="stylesheet" href="./login/styles.css" />
 </head>
 <body class="h-screen m-0 bg-[var(--color-base)] text-[var(--color-text)] antialiased" style="font-family: var(--font-body);">
-  <!-- Contenedor principal con dos paneles: izquierdo (lista) y derecho (chat) -->
+  <!-- Contenedor principal con dos paneles: izquierdo (secciones) y derecho (selección) -->
   <div class="flex h-full overflow-hidden">
-    <!-- Sección izquierda: listado de chats (siempre visible en <480px) -->
+    <!-- Sección izquierda: listado de secciones (siempre visible en <480px) -->
     <div id="userListDiv" class="w-full md:w-1/4 bg-white border-r border-[var(--color-user)] flex flex-col">
-      <!-- Cabecera con "Chats" y botón "desplegable" -->
+      <!-- Cabecera con "Secciones" y botón "desplegable" -->
       <div class="h-[65px] p-4 flex items-center justify-between bg-[var(--color-user)] relative shadow-sm">
         <!-- Botón de menú -->
         <button id="menuBtn" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú" class="px-3 py-1 bg-[var(--color-dark)] text-white rounded hover:bg-opacity-90 base-font-size transition duration-200 font-titles">
@@ -73,12 +73,12 @@
         </div>
       </div>
       
-      <!-- Contenedor de la lista de chats -->
+      <!-- Contenedor de la lista de secciones -->
       <div id="sections" class="flex-1 overflow-y-auto bg-[var(--color-chats)] p-0">
       </div>
     </div>
 
-    <!-- Sección derecha: ventana de conversación (oculto en <480px) -->
+    <!-- Sección derecha: ventana de selección (oculto en <480px) -->
     <div id="chatWindow" class="hidden md:flex w-full h-full items-center justify-center p-0">
       <p class="title-font text-center">
         Pulsa en un botón de sección para verla.

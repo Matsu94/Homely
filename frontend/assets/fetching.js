@@ -10,7 +10,7 @@ export async function registerUser(username, password) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username, password})
+            body: JSON.stringify({ username, password })
         });
 
         if (!response.ok) {
@@ -35,7 +35,30 @@ export async function registerUser(username, password) {
         sessionStorage.setItem('username', username);
         sessionStorage.setItem('user_id', data2.user_id);
 
-        window.location.href = '../opcionesUsuarioNuevo.html';
+        window.location.href = '../components/opcionesUsuarioNuevo.html';
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('passMsg').textContent = `${error}`;
+    }
+}
+
+export async function joinGroup(username, password) {
+    // Unir usuario a grupo mediante invitación
+    try {
+        const response = await fetch(`${URL}/join_group`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`${errors.joinGroupError} ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+        const data = await response.json();
+
     } catch (error) {
         console.error('Error:', error);
         document.getElementById('passwordError').textContent = `${errors.errorStartSession}`;
@@ -44,7 +67,9 @@ export async function registerUser(username, password) {
 
 export async function fetchToken(username, password) {
     // Realizar la solicitud fetch al endpoint /token
+    console.log("Fetching token fuera try fetch...");
     try {
+        console.log("Fetching token dentro try fetch...");
         const response = await fetch(`${URL}/token`, {
             method: 'POST',
             headers: {
@@ -58,10 +83,16 @@ export async function fetchToken(username, password) {
         }
 
         const data = await response.json();
+        console.log("Token fetched successfully:", data);
         sessionStorage.setItem('token', data.access_token);
         sessionStorage.setItem('username', username);
         sessionStorage.setItem('user_id', data.user_id);
-        window.location.href = '../inicio.html';
+        if (!data.group_id) {
+            window.location.href = '../components/opcionesUsuarioNuevo.html';
+        } else {
+            sessionStorage.setItem('group_id', data.group_id);
+            window.location.href = '../inicio.html';
+        }
     } catch (error) {
         console.error('Error:', error);
         document.getElementById('passwordError').textContent = `${errors.errorStartSession}`;
@@ -216,10 +247,9 @@ export async function fetchGroupMessageStatus(messageId) {
     }
 }
 
-// crear grupo
-export async function createGroup(groupObj) {
+// crear grupo + tareas
+export async function createGroup(groupObj, tasks) {
     try {
-
         const response = await fetch(`${URL}/create_group`, {
             method: 'POST',
             headers: {
@@ -235,7 +265,31 @@ export async function createGroup(groupObj) {
         }
 
         const data = await response.json();
-        return data; // { "group_id": 5 }
+        sessionStorage.setItem('group_id', data); // Guardar el ID del grupo creado
+
+
+        const payload = {
+            group_id: data,
+            tasks: tasks
+        };
+        console.log(payload);
+        const response2 = await fetch(`${URL}/add_tasks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response2.ok) {
+            const errorData = await response2.json();
+            throw new Error(`${errors.createTaskError} ${response2.status} - ${JSON.stringify(errorData)}`);
+        }
+
+        const data2 = await response2.json();
+        window.location.href = '../inicio.html';
+
     } catch (error) {
         throw error;
     }
@@ -374,25 +428,25 @@ export async function updateUserToAdmin(group_id, userId)  {
     }
 }
 
-export async function addUsersToGroup(group_id, usersIds) {
-    try {
+// export async function addUsersToGroup(group_id, usersIds) {
+//     try {
 
-        const response = await fetch(`${URL}/add_users/${group_id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ Members: usersIds })
-        });
-        if (!response.ok) {
-            throw new Error(`${errors.promoteUserError}, ${response.status}`);
-        }
-        return await response.json();
-    } catch (error) {
-        throw error;
-    }
-}
+//         const response = await fetch(`${URL}/add_users/${group_id}`, {
+//             method: 'PUT',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${token}`
+//             },
+//             body: JSON.stringify({ Members: usersIds })
+//         });
+//         if (!response.ok) {
+//             throw new Error(`${errors.promoteUserError}, ${response.status}`);
+//         }
+//         return await response.json();
+//     } catch (error) {
+//         throw error;
+//     }
+// }
 
 export async function leaveGroup(group_id) {
     try {

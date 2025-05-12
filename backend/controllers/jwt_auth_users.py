@@ -21,6 +21,7 @@ def authenticate_user(db: Matias, username: str, password: str):
             return {
                 "user_id": user_data['user_id'],
                 "username": user_data['username'],
+                "group_id": user_data['group_id'],
             }
         return None
     except Exception as e:
@@ -43,6 +44,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("user_id")
         username: str = payload.get("username")
+        group_id: int = payload.get("group_id")
         if username is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -52,7 +54,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         # Fetch user details from the database
         user_data = {
             "username": username,
-            "user_id": user_id
+            "user_id": user_id,
+            "group_id": group_id,
         }
         return user_data
     except JWTError:

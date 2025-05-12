@@ -1,4 +1,5 @@
 export const errorStartSession = "Error al iniciar sesión";
+export const registerError = "Error al registrar usuario";
 export const requestError = "Error en la solicitud";
 export const getUsersError = "Error al obtener usuarios";
 export const getMessagesError = "Error al obtener mensajes";
