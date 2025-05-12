@@ -7,14 +7,14 @@ export function openChangeBackgroundGrid() {
     if (!chatWindow) return;
 
     const userListDiv = document.getElementById("userListDiv");
-    const chatList = document.getElementById("chatList");
+    const sections = document.getElementById("sections");
 
-    $.get("/WHATSAPP/frontend/components/changeBackgroundGrid.html")
+    $.get("/Homely/frontend/components/changeBackgroundGrid.html")
         .done((html) => {
             $(chatWindow).html(html);
 
             userListDiv.classList.add("hidden");
-            chatList.classList.add("hidden");
+            sections.classList.add("hidden");
             chatWindow.classList.remove("hidden");
 
             // Add event listeners for SVG selection
@@ -24,7 +24,7 @@ export function openChangeBackgroundGrid() {
                 sessionStorage.setItem("chatBackground", selectedBackground);
                 closeChatWindow(); // Close grid after selection
                 userListDiv.classList.remove("hidden");
-                chatList.classList.remove("hidden");
+                sections.classList.remove("hidden");
                 chatWindow.classList.add("hidden");
             });
 
@@ -32,7 +32,7 @@ export function openChangeBackgroundGrid() {
             $("#cancelChangeBackgroundBtn").on("click", function () {
                 closeChatWindow();
                 userListDiv.classList.remove("hidden");
-                chatList.classList.remove("hidden");
+                sections.classList.remove("hidden");
                 chatWindow.classList.add("hidden");
             });
 

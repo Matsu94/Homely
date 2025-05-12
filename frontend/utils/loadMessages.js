@@ -5,11 +5,11 @@ import { getMessagesError } from "../errors/errors.js";
 
 let offset = 0;
 // loadMessages llama a fetchMessages y luego renderChatMessages
-export async function loadMessages(senderId, isGroup) {
+export async function loadMessages() {
     try {
-        const messages = await fetchMessages(senderId, isGroup, offset);
+        const messages = await fetchMessages(offset);
 
-        renderChatMessages(messages, currentUserId);
+        renderChatMessages(messages);
     } catch (error) {
         console.error(getMessagesError, error);
     }

@@ -1,6 +1,47 @@
 import { URL, token } from '../constants/const.js';
 import * as errors from '../errors/errors.js';
 
+
+export async function registerUser(username, password) {
+    // Realizar la solicitud fetch al endpoint /register
+    try {
+        const response = await fetch(`${URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password})
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`${errors.registerError} ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+        
+        const response2 = await fetch(`${URL}/token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (!response2.ok) {
+            const errorData = await response2.json();
+            throw new Error(`${errors.requestError} ${response2.status} - ${JSON.stringify(errorData)}`);
+        }
+        const data2 = await response2.json();
+        sessionStorage.setItem('token', data2.access_token);
+        sessionStorage.setItem('username', username);
+        sessionStorage.setItem('user_id', data2.user_id);
+
+        window.location.href = '../opcionesUsuarioNuevo.html';
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('passwordError').textContent = `${errors.errorStartSession}`;
+    }
+}
+
 export async function fetchToken(username, password) {
     // Realizar la solicitud fetch al endpoint /token
     try {
@@ -27,27 +68,6 @@ export async function fetchToken(username, password) {
     }
 }
 
-//CARGAR USUARIOS PARA EL LISTADO
-export async function fetchUsers() {
-    try {
-
-        const response = await fetch(`${URL}/usersWithoutChat`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`${errors.getUsersError}, ${response.status}`);
-        }
-        return await response.json();
-        // Esto será un array de objetos: [{ user_id, username, password }, ...]
-    } catch (error) {
-        throw error; // Relanzamos el error para manejarlo fuera
-    }
-}
-
 export async function fetchChats() {
     try {
  // Si requieres autenticación
@@ -60,21 +80,12 @@ export async function fetchChats() {
             }
         });
 
-        const response2 = await fetch(`${URL}/get_missing_groups`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Descomenta si tu endpoint requiere token
-            }
-        });
-
-        if (!response.ok && !response2.ok) {
+        if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`Error al obtener chats: ${response.status} - ${JSON.stringify(errorData)}`);
         }
         const data = await response.json();
-        const data2 = await response2.json();
-        return [...data, ...data2]; // Esperamos un array de objetos con usuarios/grupos, el último mensaje y los grps sin msjs
+        return [...data]; // Esperamos un array de objetos con usuarios/grupos, el último mensaje y los grps sin msjs
     } catch (error) {
         throw error;
     }
@@ -121,12 +132,11 @@ export async function fetchUnreadMessages() {
 }
 
 //Para cargar los mensajes
-export async function fetchMessages(senderId, isGroup, offset = 0) {
+export async function fetchMessages(offset = 0) {
     try {
-        const isGroupParam = isGroup ? 'true' : 'false';
 
         // Fetch messages from the backend
-        const response = await fetch(`${URL}/receive_messages/${senderId}/${isGroupParam}?offset=${offset}`, {
+        const response = await fetch(`${URL}/receive_messages/?offset=${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -188,8 +198,6 @@ export async function postMessage(messageObj) {
 // estados mensaje grupo
 export async function fetchGroupMessageStatus(messageId) {
     try {
-
-
         const response = await fetch(`${URL}/group_message_status/${messageId}`, {
             method: 'GET',
             headers: {
@@ -284,8 +292,6 @@ export async function updateGroupName(group_id, name) {
 // CAMBIAR DESCRIPCION GRUPO
 export async function updateGroupDescription(group_id, description) {
     try {
-
-
         const response = await fetch(`${URL}/update_description/${group_id}`, {
             method: 'PUT',
             headers: {
@@ -305,32 +311,9 @@ export async function updateGroupDescription(group_id, description) {
     }
 }
 
-//CARGAR USUARIOS PARA GRUPO
-export async function fetchUsersForGroup() {
-    try {
-
-
-        const response = await fetch(`${URL}/usersForGroup`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`${errors.getUsersError}, ${response.status}`);
-        }
-        return await response.json();
-        // Esto será un array de objetos: [{ user_id, username, password }, ...]
-    } catch (error) {
-        throw error; // Relanzamos el error para manejarlo fuera
-    }
-}
 //CARGAR USUARIOS DE GRUPO
 export async function fetchUsersFromGroup(group_id) {
     try {
-
-
         const response = await fetch(`${URL}/get_members/${group_id}`, {
             method: 'GET',
             headers: {
@@ -347,6 +330,7 @@ export async function fetchUsersFromGroup(group_id) {
         throw error; // Relanzamos el error para manejarlo fuera
     }
 }
+
 export async function removeUserFromGroup(group_id, userId) {
     try {
 

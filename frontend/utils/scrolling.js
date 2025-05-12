@@ -7,7 +7,7 @@ const limit = 10;
 let isLoadingMessages = false;
 let hasMoreMessages = true;  // Nueva variable para evitar loops innecesarios
 
-export function initScrollPagination(senderId, isGroup) {
+export function initScrollPagination() {
     const messagesContainer = document.getElementById("messagesContainer");
     if (!messagesContainer) return;
 
@@ -19,18 +19,18 @@ export function initScrollPagination(senderId, isGroup) {
             isLoadingMessages = true;
             currentOffset += limit;
 
-            await loadOlderMessages(senderId, isGroup);
+            await loadOlderMessages();
             isLoadingMessages = false;
         }
     });
 }
 
-async function loadOlderMessages(senderId, isGroup) {
+async function loadOlderMessages() {
     try {
         const messagesContainer = document.getElementById("messagesContainer");
         const previousScrollHeight = messagesContainer.scrollHeight;
 
-        const olderMessages = await fetchMessages(senderId, isGroup, currentOffset);
+        const olderMessages = await fetchMessages(currentOffset);
         if (olderMessages.length < limit) {
             hasMoreMessages = false; // No hay más mensajes para cargar
         }

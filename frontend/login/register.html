@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" class="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Mensajería Instantánea</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register</title>
   
   <!-- Tailwind CSS vía CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,8 +13,9 @@
   
   <!-- Archivo CSS con estilos propios (donde se definen las variables y clases) -->
   <link rel="stylesheet" href="styles.css">
+
 </head>
-<body class="min-h-screen bg-[var(--color-base)] text-[var(--color-text)] flex items-center justify-center relative" style="font-family: var(--font-body);">
+<body class="bg-[var(--color-base)] text-[var(--color-text)] font-[Poppins] min-h-screen flex items-center justify-center">
   <!-- Toggle de modo claro/oscuro: posicionado en la esquina superior derecha -->
   <label class="theme-switch fixed top-4 right-4 z-10 scale-50 origin-top-right mr-5">
     <input type="checkbox" class="theme-switch__checkbox" id="themeCheckbox" />
@@ -37,27 +38,24 @@
       </div>
     </div>
   </label>
-  
-  <!-- Contenedor principal del formulario -->
+
   <div class="w-full max-w-lg p-8 rounded-lg shadow-md bg-[var(--color-other)]">
     <!-- Encabezado -->
     <div class="flex items-center justify-center">
       <h1 class="title-font font-bold mb-8 font-titles">
-        INICIAR SESIÓN
+        REGISTRARSE
       </h1>
     </div>
-  
-    <!-- Formulario de login -->
-    <form id="loginForm" class="space-y-6">
-      <!-- Campo de usuario -->
-      <div>
-        <label for="username" class="block font-semibold mb-2">
-          Nombre de Usuario
-        </label>
-        <input type="text" id="username" name="username" class="w-full px-5 py-3 rounded border bg-white border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-headers)] text-black" placeholder="nombre usuario" required />
-        <p id="usernameError" class="text-red-500 mini-font-size mt-1"></p>
-      </div>
-  
+    
+    <form id="registerForm" class="space-y-6">
+        <!-- Campo de usuario -->
+        <div>
+          <label for="username" class="block font-semibold mb-2">
+            Nombre de Usuario
+          </label>
+          <input type="text" id="username" name="username" class="w-full px-5 py-3 rounded border bg-white border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-headers)] text-black" placeholder="nombre usuario" required />
+          <p id="usernameError" class="text-red-500 mini-font-size mt-1"></p>
+        </div>
       <!-- Campo de contraseña + icono ojo -->
       <div>
         <label for="password" class="block font-semibold mb-2">
@@ -76,28 +74,47 @@
         </div>
         <p id="passwordError" class="text-red-500 mini-font-size mt-1"></p>
       </div>
+      <!-- Campo de confirmación + icono ojo -->
+      <div>
+        <label for="confirmation" class="block font-semibold mb-2">
+          Confirmar Contraseña
+        </label>
+        <!-- Contenedor relativo para colocar el icono de forma absoluta -->
+        <div class="relative">
+          <input type="password" id="confirmation" name="confirmation" autocomplete="off" list="none" class="w-full px-5 py-3 rounded border bg-white border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-headers)] pr-10 text-black" placeholder="********" required />
+          <!-- Botón para mostrar/ocultar contraseña -->
+          <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-xl text-[var(--color-dark)] hover:text-gray-700 transition-colors" aria-label="Mostrar u ocultar contraseña">
+            <!-- Icono ojo abierto (inicialmente oculto) -->
+            <i id="eyeOpen" class="fa-solid fa-eye hidden"></i>
+            <!-- Icono ojo cerrado (inicialmente visible) -->
+            <i id="eyeSlash" class="fa-solid fa-eye-slash"></i>
+          </button>
+        </div>
+        <p id="confirmationError" class="text-red-500 mini-font-size mt-1"></p>
+      </div>
+      <!-- Mensaje de error -->
+      <p id="passMsg" class="text-red-500 text-sm"></p>
       <!-- CAPTCHA -->
       <div class="flex justify-center mt-4">
         <div class="g-recaptcha" data-sitekey="6LdnWi0rAAAAAPCIs5ur1Te8sVSnO0q3zAlTgDcG"></div>
       </div>
-  
+
       <!-- Botón de envío -->
       <button type="submit" class="group relative flex h-14 w-auto mx-auto items-center justify-center overflow-hidden rounded-full border-2 border-[var(--color-dark)] bg-[var(--color-dark)] px-8 font-semibold text-white transition-all duration-200 hover:bg-transparent hover:text-white hover:border-white focus:outline-none font-titles active:translate-x-[3px] active:translate-y-[3px]">
-        Entrar
+        Registrarse
       </button>     
-      
     </form>
 
-    <!-- Texto de redirección al registro -->
-    <p class="text-center mt-6 text-sm">
-      ¿No tienes cuenta? <a href="register.html" class="text-[var(--color-link)] hover:underline">Regístrate aquí</a>
+    <p class="mt-4 text-center text-sm">
+      Ya tienes una cuenta?
+      <a href="login.html" class="text-[var(--color-link)] hover:underline">Accede</a>
     </p>
-
   </div>
+
   
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="darkmode&icons.js" type="module" defer></script>
-  <script src="validations/loginValidations.js" type="module" defer></script>
+  <script src="validations/registerValidation.js" type="module" defer></script>
 </body>
 </html>

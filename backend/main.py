@@ -68,11 +68,6 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
     except WebSocketDisconnect:
         manager.disconnect(websocket, user_id)
 
-# Endpoint to list all users (1a)
-@app.get("/usersWithoutChat")
-def read_users_noChat(db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
-    user_id = user['user_id']
-    return db.getUsersNoChat(user_id)
 
 @app.get("/chats") # ESTE SERÍA EL PRIMER ENDPOINT DSPS DE LOGIN
 def get_chats(db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
@@ -94,17 +89,9 @@ async def send_message(message: Message, db: Matias = Depends(get_db), user: str
         "status": message.Status,
         "sender_id": message.Sender,
         "receiver_id": message.Receiver,
-        "is_group": message.isGroup,
     }
-
-    # Check if it's a group message
-    if message.isGroup:
-        room_id = f"Group_{message.Receiver}"  # Ensure group WebSockets are prefixed
-    else:
-        room_id = message.Receiver
     
-    # await manager.send_personal_message(
-    #     json.dumps({"type": "new_message",}), room_id)
+    room_id = f"Group_{message.Receiver}"  # Ensure group WebSockets are prefixed
 
     await manager.send_personal_message(message_dict, room_id)
     return {"message_id": message_id}
@@ -116,16 +103,14 @@ def check_messages(db: Matias = Depends(get_db), receiver: str = Depends(get_cur
     return db.checkMessages(receiver_id)
 
 # Endpoint to get all messages from a chat (2m) (3m)
-@app.get("/receive_messages/{sender_id}/{isGroup}")
+@app.get("/receive_messages/{sender_id}")
 def receive_messages(
-    sender_id: str,
-    isGroup: bool,
     offset: int = 0,
     db: Matias = Depends(get_db),
     receiver: str = Depends(get_current_user)
 ):
     receiver_id = receiver['user_id']
-    messages = db.getMessagesChat(offset=offset, sender_id=sender_id, receiver_id=receiver_id, isGroup=isGroup)
+    messages = db.getMessagesChat(offset=offset, receiver_id=receiver_id)
     return messages
 
 # Endpoint to change the state of a message (3m)
@@ -144,15 +129,11 @@ def change_state(
 
 #==================GROUPS==================
 
-# Endpoint to list user groups (1g) ESTE CREO NO ESTÁ HACIENDO NADA AHORA MISMO
-@app.get("/groups")
-def get_groups(user_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
-    return db.getGroups(user_id)
-
 # Endpoint to create a group (2g)
 @app.post("/create_group")
 def create_group(group: Group, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
     return db.createGroup(group)
+
 # Endpoint to get members of a group
 @app.get("/get_members/{group_id}")
 def get_members(group_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
@@ -193,8 +174,6 @@ def update_description(group_id: int, description: DescriptionUpdate, db: Matias
     return db.updateDescription(group_id, description)
 
 # Endpoint to leave a group (5g)
-from fastapi import HTTPException
-
 @app.delete("/leave_group/{group_id}")
 def leave_group(group_id: int, db: Matias = Depends(get_db), admin: str = Depends(get_current_user)):
     admin_id = admin['user_id']
@@ -210,16 +189,6 @@ def leave_group(group_id: int, db: Matias = Depends(get_db), admin: str = Depend
 @app.get("/group_message_status/{message_id}")
 def group_message_status(message_id: int, db: Matias = Depends(get_db), receiver: str = Depends(get_current_user)):
     return db.groupMessageStatus(message_id)
-
-@app.get("/get_missing_groups")
-def get_missing_groups(db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
-    user_id = user['user_id']
-    return db.getMissingGroups(user_id)
-
-@app.get("/usersForGroup")
-def read_users_noChat(db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
-    user_id = user['user_id']
-    return db.getusersForGroup(user_id)
 
 # Endpoint to generate a token
 @app.post("/token", response_model=Token)
@@ -237,3 +206,8 @@ async def login(user: User, db: Matias = Depends(get_db)):
     )
     return {"access_token": access_token, "token_type": "bearer", "user_id": authenticated_user["user_id"]}
 
+# Endpoint to register a new user
+@app.post("/register")
+def register_user(user: User, db: Matias = Depends(get_db)):
+    user_id = db.registerUser(user)
+    return {"message": "User registered successfully", "user_id": user_id}
