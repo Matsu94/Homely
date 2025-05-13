@@ -12,6 +12,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     user_id: int 
+    group_id: Optional[int] = None
     
 # Modelo de mensaje
 class Message(BaseModel):

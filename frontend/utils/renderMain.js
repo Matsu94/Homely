@@ -69,7 +69,7 @@ export async function renderMain(unreadLookup = {}) {
       if (window.innerWidth < 768) {
         document.getElementById("userListDiv").classList.add("hidden");
         document.getElementById("sections").classList.add("hidden");
-        document.getElementById("chatWindow").classList.remove("hidden");
+        document.getElementById("sectionWindow").classList.remove("hidden");
       }
     });
 
@@ -81,6 +81,16 @@ export async function renderMain(unreadLookup = {}) {
     choresTitle.innerText = "Tareas";
     choresSection.appendChild(choresTitle);
     sections.appendChild(choresSection);
+
+    choresSection.addEventListener("click", () => {
+        renderWeeklyChores();
+
+      if (window.innerWidth < 768) {
+        document.getElementById("userListDiv").classList.add("hidden");
+        document.getElementById("sections").classList.add("hidden");
+        document.getElementById("sectionWindow").classList.remove("hidden");
+      }
+    });
 
     sections.appendChild(chatSection);
 

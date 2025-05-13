@@ -5,8 +5,8 @@ import * as errors from "../errors/errors.js";
 
 
 export async function openGroupOptions(group_id) {
-    const chatWindow = document.getElementById("chatWindow");
-    if (!chatWindow) return;
+    const sectionWindow = document.getElementById("sectionWindow");
+    if (!sectionWindow) return;
 
     try {
         const [group, users] = await Promise.all([
@@ -20,12 +20,12 @@ export async function openGroupOptions(group_id) {
         // Cargar la estructura HTML (vista de grupo) desde tu componente
         const response = await fetch("/Homely/frontend/components/viewGroupOptions.html");
         const html = await response.text();
-        chatWindow.innerHTML = html;
+        sectionWindow.innerHTML = html;
 
         // Ocultar la lista de usuarios y chats, y mostrar la vista de opciones del grupo
         document.getElementById("userListDiv").classList.add("hidden");
         document.getElementById("sections").classList.add("hidden");
-        chatWindow.classList.remove("hidden");
+        sectionWindow.classList.remove("hidden");
 
         // Configurar la vista visual: asignar nombre y descripción
         const groupNameContainer = document.getElementById("groupName");
@@ -101,7 +101,7 @@ export async function openGroupOptions(group_id) {
             closeChatWindow();
             document.getElementById("userListDiv").classList.remove("hidden");
             document.getElementById("sections").classList.remove("hidden");
-            chatWindow.classList.add("hidden");
+            sectionWindow.classList.add("hidden");
         });
 
         // Listener para el botón "Leave Group"
@@ -179,7 +179,7 @@ export async function openGroupOptions(group_id) {
 
     } catch (error) {
         console.error(`${errors.loadingGroupOptionsError}`, error);
-        chatWindow.innerHTML = `<p class="text-red-500">${errors.loadingGroupOptionsError}</p>`;
+        sectionWindow.innerHTML = `<p class="text-red-500">${errors.loadingGroupOptionsError}</p>`;
     }
 }
 

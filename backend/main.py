@@ -219,7 +219,7 @@ async def login(user: User, db: Matias = Depends(get_db)):
     access_token = create_access_token(
         data={"username": authenticated_user["username"], "user_id": authenticated_user["user_id"], "group_id": authenticated_user["group_id"]}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer", "user_id": authenticated_user["user_id"]}
+    return {"access_token": access_token, "token_type": "bearer", "user_id": authenticated_user["user_id"], "group_id": authenticated_user["group_id"]}
 
 # Endpoint to register a new user
 @app.post("/register")

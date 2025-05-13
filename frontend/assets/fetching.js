@@ -67,9 +67,7 @@ export async function joinGroup(username, password) {
 
 export async function fetchToken(username, password) {
     // Realizar la solicitud fetch al endpoint /token
-    console.log("Fetching token fuera try fetch...");
     try {
-        console.log("Fetching token dentro try fetch...");
         const response = await fetch(`${URL}/token`, {
             method: 'POST',
             headers: {
@@ -83,14 +81,13 @@ export async function fetchToken(username, password) {
         }
 
         const data = await response.json();
-        console.log("Token fetched successfully:", data);
         sessionStorage.setItem('token', data.access_token);
         sessionStorage.setItem('username', username);
         sessionStorage.setItem('user_id', data.user_id);
-        if (!data.group_id) {
+        sessionStorage.setItem('group_id', data.group_id);
+        if (data.group_id === null) {
             window.location.href = '../components/opcionesUsuarioNuevo.html';
         } else {
-            sessionStorage.setItem('group_id', data.group_id);
             window.location.href = '../inicio.html';
         }
     } catch (error) {

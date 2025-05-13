@@ -3,19 +3,19 @@ import { backgroundSelectionError } from "../errors/errors.js";
 
 // JQUERY para la parte de Petrus
 export function openChangeBackgroundGrid() {
-    const chatWindow = document.getElementById("chatWindow");
-    if (!chatWindow) return;
+    const sectionWindow = document.getElementById("sectionWindow");
+    if (!sectionWindow) return;
 
     const userListDiv = document.getElementById("userListDiv");
     const sections = document.getElementById("sections");
 
     $.get("/Homely/frontend/components/changeBackgroundGrid.html")
         .done((html) => {
-            $(chatWindow).html(html);
+            $(sectionWindow).html(html);
 
             userListDiv.classList.add("hidden");
             sections.classList.add("hidden");
-            chatWindow.classList.remove("hidden");
+            sectionWindow.classList.remove("hidden");
 
             // Add event listeners for SVG selection
             $(".bg-option").on("click", function (e) {
@@ -25,7 +25,7 @@ export function openChangeBackgroundGrid() {
                 closeChatWindow(); // Close grid after selection
                 userListDiv.classList.remove("hidden");
                 sections.classList.remove("hidden");
-                chatWindow.classList.add("hidden");
+                sectionWindow.classList.add("hidden");
             });
 
             // Close grid on cancel
@@ -33,7 +33,7 @@ export function openChangeBackgroundGrid() {
                 closeChatWindow();
                 userListDiv.classList.remove("hidden");
                 sections.classList.remove("hidden");
-                chatWindow.classList.add("hidden");
+                sectionWindow.classList.add("hidden");
             });
 
             // Variables globales para almacenar los valores originales

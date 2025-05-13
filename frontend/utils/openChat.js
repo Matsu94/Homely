@@ -11,8 +11,8 @@ let socket = null;
 
 export async function openChat() {
     closeWebSocket();
-    const chatWindow = document.getElementById("chatWindow");
-    if (!chatWindow) return;
+    const sectionWindow = document.getElementById("sectionWindow");
+    if (!sectionWindow) return;
 
     // Load messages first before updating chat list so alerts are deleted
     await fetchMessages();
@@ -22,7 +22,7 @@ export async function openChat() {
     fetch("/Homely/frontend/components/openChat.html")
         .then((response) => response.text())
         .then((html) => {
-            chatWindow.innerHTML = html;
+            sectionWindow.innerHTML = html;
 
             // const chatHeader = document.getElementById("chatHeader");
             // const groupOptions = document.getElementById("groupOptions");
@@ -77,13 +77,13 @@ export async function openChat() {
                 const closeBtn = document.getElementById("closeChatBtn");
                 const sections = document.getElementById("sections");
                 const userListDiv = document.getElementById("userListDiv");
-                const chatWindow = document.getElementById("chatWindow");
+                const sectionWindow = document.getElementById("sectionWindow");
 
                 if (closeBtn) {
                     closeBtn.addEventListener("click", () => {
                         closeChatWindow();
                         sections.classList.remove("hidden");
-                        chatWindow.classList.add("hidden");
+                        sectionWindow.classList.add("hidden");
                         userListDiv.classList.remove("hidden");
                         closeBtn.classList.add("hidden");
                     });
