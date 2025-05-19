@@ -69,10 +69,10 @@ CREATE TABLE `chores` (
   `group_id` INT UNSIGNED NOT NULL,
   `title` VARCHAR(255) NOT NULL,
   `description` TEXT,
-  `type` ENUM('ocasional', 'periódica') NOT NULL, 
-  `periodicidad` ENUM('Diaria', 'Mensual', 'Anual', 'Días Especficos', 'Dos veces al día'), 
-  `días_específicos` SET('Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo') DEFAULT NULL,
-  `fecha_límite` DATE DEFAULT NULL,
+  `type` ENUM('occasional', 'periodic') NOT NULL, 
+  `periodicity` ENUM('Diaria', 'Mensual', 'Anual', 'Días Especficos', 'Dos veces al día'), 
+  `specific_days` SET('Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo') DEFAULT NULL,
+  `date_limit` DATE DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX (`group_id`),
   INDEX (`periodicidad`),
@@ -86,6 +86,7 @@ CREATE TABLE `chore_completions` (
   `user_id` INT NOT NULL,
   `completed_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `proof_image_url` VARCHAR(500) DEFAULT NULL,
+  `repeating` ENUM('1', '2') NOT NULL, 
   PRIMARY KEY (`chore_id`, `user_id`, `completed_at`),
   INDEX (`user_id`),
   FOREIGN KEY (`chore_id`) REFERENCES chores(`chore_id`) ON DELETE CASCADE,
@@ -116,3 +117,10 @@ INSERT INTO `users` (`user_id`, `username`, `password`) VALUES
 (2, 'user3', 'scrypt:32768:8:1$hTJjwKlJeCthi8up$d86c17cc6169b55eaa1ebbe5ae9f67faabee7a605edf73420722863bb083b194738cde65b2ef96b20c792021313f0bfa7875133106b84e95b88b6a14a4804738');
 
 COMMIT;
+
+
+CREATE EVENT IF NOT EXISTS delete_old_invite_codes
+ON SCHEDULE EVERY 1 HOUR
+DO
+  DELETE FROM group_invitations
+  WHERE created_at < NOW() - INTERVAL 1 DAY;

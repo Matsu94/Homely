@@ -120,13 +120,13 @@ class Matias(object):
     def addTasksToGroup(self, group_id, tasks):
         for task in tasks:
             sql = addTaskToGroup
-            days_str = ", ".join(task.days) if task.days else None
-            now = datetime.now()
+            days_str = ",".join(task.specific_days) if task.specific_days else None
+            # now = datetime.now()
             # Set default fecha_límite if missing
-            if task.periodicity == "Mensual" and task.date is None:
-                task.date = datetime(now.year, now.month, calendar.monthrange(now.year, now.month)[1])
-            elif task.periodicity == "Anual" and task.date is None:
-                task.date = datetime(now.year, 12, 31)
+            # if task.periodicity == "Mensual" and task.date is None:
+            #     task.date = datetime(now.year, now.month, calendar.monthrange(now.year, now.month)[1])
+            # elif task.periodicity == "Anual" and task.date is None:
+            #     task.date = datetime(now.year, 12, 31)
             self.cursor.execute(sql, (
                 group_id,
                 task.title,
@@ -137,6 +137,52 @@ class Matias(object):
                 task.date
             ))
         return self.cursor.lastrowid
+    
+    def getTasks(self, group_id):
+        sql = getTasks
+        self.cursor.execute(sql, (group_id,))
+        res = self.cursor.fetchall()
+        return res
+    
+    def deleteTask(self, task_id):
+        sql = deleteTask
+        self.cursor.execute(sql, (task_id,))
+        return self.cursor.rowcount
+    
+    def updateTask(self, task):
+        sql = updateTask
+        self.cursor.execute(sql, (
+            task.title,
+            task.description,
+            task.type,
+            task.periodicity,
+            task.specific_days,
+            task.date,
+            task.task_id,
+        ))
+        return self.cursor.rowcount
+    
+    def completeTask(self, task_id, user_id, img_url, periodicity):
+        complete = completeTask
+        if periodicity != "Dos veces al día":
+            self.cursor.execute(complete, (task_id, user_id, img_url, 1))
+        else :
+            sql = checkIteration
+            self.cursor.execute(sql, (task_id,))
+            iteration = self.cursor.fetchone()
+            if not iteration:
+                self.cursor.execute(complete, (task_id, user_id, img_url, 1))
+            else:
+                self.cursor.execute(complete, (task_id, user_id, img_url, 2))
+        return self.cursor.lastrowid
+    
+    
+    def getCompletions(self, group_id):
+        sql = getCompletions
+        self.cursor.execute(sql, (group_id,))
+        res = self.cursor.fetchall()
+        return res
+    
     
     def getMembers(self, group_id):
         sql = getMembers

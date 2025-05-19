@@ -44,7 +44,7 @@ class Task(BaseModel):
     type: str  # Tipo de tarea (recurrente o no recurrente)
     periodicity: Optional[str] = None  # Periodicidad de la tarea (diaria, semanal, mensual)
     date: Optional[datetime] = None  # Fecha de la tarea
-    days: Optional[list[str]] = None  # Días específicos de la tarea
+    specific_days: Optional[list[str]] = None  # Días específicos de la tarea
     
 class TaskPayload(BaseModel):
     group_id: int

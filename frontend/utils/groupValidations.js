@@ -48,11 +48,11 @@ export async function handleCreateGroupFormSubmit() {
             }
         }
 
+
         tasks.push(task);
     });
 
     try {
-        console.log(tasks);
         await createGroup(groupObj, tasks);
 
     } catch (error) {

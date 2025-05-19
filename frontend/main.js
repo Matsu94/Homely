@@ -1,5 +1,5 @@
 
-import { openCreateGroupForm } from "./utils/openCreateGroupForm.js";
+// import { openCreateGroupForm } from "./utils/openCreateGroupForm.js";
 import { getUsersError } from "./errors/errors.js";
 import { fetchChats} from "./assets/fetching.js";
 import { openChangeBackgroundGrid } from "./utils/openChangeBackgroundGrid.js";
@@ -15,16 +15,16 @@ window.addEventListener("DOMContentLoaded", () => {
         window.location.href = `/Homely/frontend/login/login.html`;
       }
 
-      const chats = await fetchChats();
+      // const chats = await fetchChats();
       
-      await renderMain(chats);
+      await renderMain();
 
-      const createGroupBtn = document.getElementById("createGroupBtn");
-      if (createGroupBtn) {
-        createGroupBtn.addEventListener("click", () => {
-          openCreateGroupForm();
-        });
-      }
+      // const createGroupBtn = document.getElementById("createGroupBtn");
+      // if (createGroupBtn) {
+      //   createGroupBtn.addEventListener("click", () => {
+      //     openCreateGroupForm();
+      //   });
+      // }
 
       const changeBackgroundBtn = document.getElementById("changeBackgroundBtn");
       if (changeBackgroundBtn) {
@@ -58,11 +58,11 @@ window.addEventListener("DOMContentLoaded", () => {
         });
       });
 
-      const openCreateGroup = document.getElementById("createGroupBtn");
-      openCreateGroup.addEventListener("click", () => {
-        userListDiv.classList.add("hidden");
-        sections.classList.add("hidden");
-      });
+      // const openCreateGroup = document.getElementById("createGroupBtn");
+      // openCreateGroup.addEventListener("click", () => {
+      //   userListDiv.classList.add("hidden");
+      //   sections.classList.add("hidden");
+      // });
 
       changeBackgroundBtn.addEventListener("click", () => {
         userListDiv.classList.add("hidden");

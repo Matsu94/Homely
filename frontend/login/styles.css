@@ -9,14 +9,33 @@
     --color-headers: #454941;/* P.ej. para focus ring */
     --color-base: #fffefc;   /* Fondo de la página */
     --color-chats: #f3e3f3;
+    --color-bgdaycontainer: #fef5fe; /* Fondo contenedor dias */
     
     /* Variables para texto y bordes en modo claro */
     --color-text: #000000;   /* Texto principal en modo claro */
     --color-border: #d9d3d8; /* Bordes en modo claro */
     --color-alert: #dd0088;  /* Color de alerta */
     --color-delete: #dd0025;  /* Color de borrar */
-
+    --color-add: #00dd88;  /* Color de borrar */
     --color-link: #56F; /* Texto links en modo claro */
+
+    /* Variables para conmtenedores de días*/
+    --color-daily: #ff4a4a; /* Fondo contenedor diario */
+    --color-month: #fff456; /* Fondo contenedor mes */
+    --color-year: #5bff55; /* Fondo contenedor año */
+    --color-days: #33d2dd; /* Fondo contenedor dias */
+    --color-twice: #5558ff; /* Fondo contenedor doble al día */
+    --color-date: #cf55ff; /* Fondo contenedor fecha */
+    --color-tbd: #ff3a4a; /* Fondo contenedor domingo */
+    --color-hoverdaily: #db4242; /* Fondo contenedor diario */
+    --color-hovermonth: #d1c849; /* Fondo contenedor mes */
+    --color-hoveryear: #45c741; /* Fondo contenedor año */
+    --color-hoverdays: #40bec7; /* Fondo contenedor dias */
+    --color-hovertwice: #3f41c4; /* Fondo contenedor doble al día */
+    --color-hoverdate: #9d42c2; /* Fondo contenedor fecha */
+    --color-hovertbd: #ff3a4a; /* Fondo contenedor domingo */
+
+
   }
 
   /* ========== MODO OSCURO (dark) ========== */
@@ -27,6 +46,7 @@
     --color-headers: #d2ecd8; /* Para focus ring en modo oscuro */
     --color-base:  #272532; /* Fondo de la página en modo oscuro */
     --color-chats: #292229;
+    --color-bgdaycontainer: #221122; /* Fondo contenedor dias */
     /* Texto y bordes en modo oscuro */
     --color-text: #ffffff;    /*o Texto principal en modo oscuro */
     --color-border: #4f4f4f;  /* Bordes en modo oscuro */

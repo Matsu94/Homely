@@ -17,7 +17,7 @@ export async function registerUser(username, password) {
             const errorData = await response.json();
             throw new Error(`${errors.registerError} ${response.status} - ${JSON.stringify(errorData)}`);
         }
-        
+
         const response2 = await fetch(`${URL}/token`, {
             method: 'POST',
             headers: {
@@ -98,7 +98,7 @@ export async function fetchToken(username, password) {
 
 export async function fetchChats() {
     try {
- // Si requieres autenticación
+        // Si requieres autenticación
 
         const response = await fetch(`${URL}/chats`, {
             method: 'GET',
@@ -269,7 +269,6 @@ export async function createGroup(groupObj, tasks) {
             group_id: data,
             tasks: tasks
         };
-        console.log(payload);
         const response2 = await fetch(`${URL}/add_tasks`, {
             method: 'POST',
             headers: {
@@ -292,11 +291,127 @@ export async function createGroup(groupObj, tasks) {
     }
 }
 
+// CARGAR TAREAS GRUPO
+export async function fetchGroupTasks(group_id) {
+    try {
+        const response = await fetch(`${URL}/get_tasks/${group_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`${errors.getGroupTasksError}, ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+// UPLOAD IMAGE
+export async function uploadImage(formData) {
+    try {
+        const uploadResponse = await fetch(`${URL}/upload_image`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        if (!uploadResponse.ok) {
+            const error = await uploadResponse.json();
+            throw new Error(`Error subiendo imagen: ${JSON.stringify(error)}`);
+        }
+
+        const { image_url } = await uploadResponse.json();
+        return image_url; // Retorna la URL de la imagen
+
+    } catch (err) {
+        alert("Error al completar la tarea: " + err.message);
+    }
+}
+
+// COMPLETAR TAREA
+export async function completeTask(task_id, imgURL, periodicity) {
+    // Unir usuario a grupo mediante invitación
+    try {
+        const response = await fetch(`${URL}/complete_task/${task_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                img_url: imgURL,
+                periodicity
+            })
+
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`${errors.completeTaskError} ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+        const data = await response.json();
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export async function modifyTask(task_id, taskObj) {
+    try {
+        const response = await fetch(`${URL}/update_task/${task_id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(taskObj)
+        });
+
+        if (!response.ok) {
+            throw new Error(`${errors.updateTaskError}, ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+// ELIMINAR TAREA
+export async function deleteTask(task_id) {
+    try {
+        const response = await fetch(`${URL}/delete_task/${task_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`${errors.deleteTaskError}, ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 
 //CARGAR INFO GRUPO
 export async function fetchGroupInfo(group_id) {
     try {
- // Si requieres autenticación
+        // Si requieres autenticación
 
         const response = await fetch(`${URL}/group_info/${group_id}`, {
             method: 'GET',
@@ -403,9 +518,9 @@ export async function removeUserFromGroup(group_id, userId) {
     }
 }
 
-export async function updateUserToAdmin(group_id, userId)  {
+export async function updateUserToAdmin(group_id, userId) {
     try {
- 
+
 
         const response = await fetch(`${URL}/add_admin/${group_id}/${userId}`, {
             method: 'PUT',
@@ -456,7 +571,7 @@ export async function leaveGroup(group_id) {
         });
 
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.detail);  // Error means they can't leave
         }
