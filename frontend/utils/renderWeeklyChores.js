@@ -27,7 +27,7 @@ export async function renderWeeklyChores() {
 
                     // Add handlers for action buttons
                     document.getElementById("completeBtn").onclick = () => handleComplete(task.chore_id, task.periodicity);
-                    document.getElementById("modifyBtn").onclick = () => handleModify(task.chore_id);
+                    document.getElementById("modifyBtn").onclick = () => handleModify(task);
                     document.getElementById("deleteBtn").onclick = () => handleDelete(task.chore_id);
                 });
             }
@@ -38,7 +38,9 @@ export async function renderWeeklyChores() {
             });
 
 
-            const { weekStart, weekEnd, byDay: weekDates } = getCurrentWeekDates();
+            // const { weekStart, weekEnd, byDay: weekDates } = getCurrentWeekDates();
+            const { monday, sunday, weekDates } = getCurrentWeekDates();
+
             const daysMap = {
                 'Lunes': 'monday',
                 'Martes': 'tuesday',
@@ -50,12 +52,13 @@ export async function renderWeeklyChores() {
             };
 
             // Inside renderWeeklyChores before looping through tasks:
-            Object.entries(weekDates).forEach(([dayKey, dateObj]) => {
+            Object.entries(weekDates).forEach(([dayKey, dateStr]) => {
                 const container = document.getElementById(dayKey);
                 if (container) {
-                    container.setAttribute("data-date", dateObj.toISOString().split('T')[0]);
+                    container.setAttribute("data-date", dateStr);
                 }
             });
+
 
             function mapCompletions(task) {
                 const result = new Map();
@@ -92,11 +95,10 @@ export async function renderWeeklyChores() {
                         }[task.periodicity];
                         box.classList.add(...colorClass);
 
-                        Object.entries(weekDates).forEach(([dayKey, dateObj]) => {
+                        Object.entries(weekDates).forEach(([dayKey, dateStr]) => {
                             const dayContainer = document.getElementById(dayKey);
-                            const isoDate = dateObj.toISOString().split('T')[0];
 
-                            if (!completionsMap.has(isoDate)) {
+                            if (!completionsMap.has(dateStr)) {
                                 const boxClone = box.cloneNode(true);
                                 setupTaskClick(boxClone, task);
                                 dayContainer?.appendChild(boxClone);
@@ -107,10 +109,9 @@ export async function renderWeeklyChores() {
 
                     case "Dos veces al día": {
                         box.classList.add("bg-[--color-twice]", "hover:bg-[var(--color-hovertwice)]");
-                        Object.entries(weekDates).forEach(([dayKey, dateObj]) => {
+                        Object.entries(weekDates).forEach(([dayKey, dateStr]) => {
                             const dayContainer = document.getElementById(dayKey);
-                            const isoDate = dateObj.toISOString().split('T')[0];
-                            const repeats = completionsMap.get(isoDate) || [];
+                            const repeats = completionsMap.get(dateStr) || [];
 
                             const count1 = repeats.filter(r => r === 1).length;
                             const count2 = repeats.filter(r => r === 2).length;
@@ -152,10 +153,9 @@ export async function renderWeeklyChores() {
                     default:
                         if (task.type === "occasional" && task.date_limit) {
                             const taskDate = new Date(task.date_limit);
-                            taskDate.setHours(0, 0, 0, 0);
-                            const isoDate = taskDate.toISOString().split('T')[0];
+                            taskDate.setHours(0, 0, 0, 0); // Set to start of the day
 
-                            if (taskDate >= weekStart && taskDate <= weekEnd && !completionsMap.has(isoDate)) {
+                            if ((taskDate >= monday && taskDate <= sunday) && completionsMap.size === 0) {
                                 const weekday = taskDate.toLocaleDateString("es-ES", { weekday: "long" });
                                 const dayId = daysMap[capitalizeFirstLetter(weekday)];
                                 box.classList.add("bg-[--color-date]", "hover:bg-[var(--color-hoverdate)]");
@@ -202,11 +202,24 @@ async function handleComplete(choreId, periodicity) {
 }
 
 
-function handleModify(choreId) {
+function handleModify(task) {
     // abrir ventana para modificar la tarea
 
-    let change = addTaskRow(choreId); // ABRIMOS EL CREADOR DE ROWS DE TAREAS PERO YA COMPLETADO CON LAS DE LA TAREA EN CUESTION Y DSPS TIRAMOS EL MODIFY
+    document.getElementById("modalTitle").classList.add("hidden");
+    document.getElementById("modalDescription").classList.add("hidden");
+    document.getElementById("completeBtn").classList.add("hidden");
+    document.getElementById("modifyBtn").classList.add("hidden");
+    document.getElementById("deleteBtn").classList.add("hidden");
+    let change = addTaskRow(0); // ABRIMOS EL CREADOR DE ROWS DE TAREAS PERO YA COMPLETADO CON LAS DE LA TAREA EN CUESTION Y DSPS TIRAMOS EL MODIFY
+    
+    document.createElement("button").type = "submit";
+    let updatedtask = {}
+    updatedtask.chore_id = task.chore_id;
+    task.title = row.querySelector(`input[name="task_name"]`)?.value.trim() || "";
+    task.description = row.querySelector(`input[name="task_description"]`)?.value.trim() || "";
+
     modifyTask(change);
+    renderWeeklyChores();
 }
 
 function handleDelete(choreId) {
@@ -218,33 +231,30 @@ function handleDelete(choreId) {
 }
 
 
-
 function getCurrentWeekDates() {
     const today = new Date();
-    const day = today.getDay(); // 0 (Sun) to 6 (Sat)
-    const mondayOffset = day === 0 ? -6 : 1 - day;
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const mondayOffset = (dayOfWeek + 5) % 7; // Offset to get back to Monday
+    // EL OFFSET DE GPT ESTABA MAL, ARA TENGO QUE VER SI EL QUE HICE A MANO SE MANTIENE O HAY QUE USAR OTRO METODO PARA PILLAR DIA Y FECHA
 
-    // Start of week (Monday 00:00:00)
-    const weekStart = new Date(today);
-    weekStart.setHours(0, 0, 0, 0);
-    weekStart.setDate(today.getDate() + mondayOffset);
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - mondayOffset - 1);
 
-    // End of week (Sunday 23:59:59)
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    weekEnd.setHours(23, 59, 59, 999);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
 
-    // Optional: map days to exact dates
-    const byDay = {};
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const weekDates = {};
+    const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
     for (let i = 0; i < 7; i++) {
-        const date = new Date(weekStart);
-        date.setDate(weekStart.getDate() + i);
-        byDay[dayNames[i]] = date;
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i + 1);
+        weekDates[dayNames[i]] = d.toISOString().split('T')[0]; // yyyy-mm-dd
     }
 
-    return { weekStart, weekEnd, byDay };
+    return { monday, sunday, weekDates };
 }
+
 
 
 function capitalizeFirstLetter(string) {

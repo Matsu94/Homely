@@ -11,6 +11,7 @@
 //     nameInput.name = `task_name`;
 //     nameInput.placeholder = "Nombre tarea";
 //     nameInput.required = true;
+//     nameInput.value = task.title || "";
 //     nameInput.className = "w-1/4 px-5 py-3 bg-[var(--color-base)] rounded border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-headers)] text-black";
 
 //     // Description input

@@ -37,20 +37,22 @@
       class="flex-1 mx-1 h-full flex-col items-center justify-center hover:bg-[var(--color-bgdaycontainer)] cursor-pointer rounded-lg border-4 border-gray-300">
       <h2 class="title-font text-center font-bold text-[var(--color-headers)]">Domingo</h2>
     </div>
-  <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-  <div id="tasksContainer" class="w-full mt-4 flex-col max-h-60 justify-center overflow-y-auto space-y-2 z-10"></div>
-  <div class="bg-[--color-base] text-[--color-text] rounded-xl shadow-xl p-6 max-w-md w-full relative">
-    <button id="closeModal" class="absolute top-2 right-2 text-xl font-bold">&times;</button>
-    <h2 id="modalTitle" class="text-xl font-semibold mb-2 text-center"></h2>
-    <p id="modalDescription" class="mb-4"></p>
-    <input type="file" accept="image/*" id="proofImage" class="hidden" />
-    <div class="flex justify-between">
-      <button id="completeBtn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Complete</button>
-      <button id="modifyBtn" class="px-4 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-500">Modify</button>
-      <button id="deleteBtn" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
+    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div id="tasksContainer" class="w-full mt-4 max-h-60 justify-center overflow-y-auto space-y-2 z-10">
+      </div>
+      <div class="bg-[--color-base] text-[--color-text] rounded-xl shadow-xl p-6 max-w-md w-full relative">
+        <button id="closeModal" class="absolute top-2 right-2 text-xl font-bold">&times;</button>
+        <h2 id="modalTitle" class="text-xl font-semibold mb-2 text-center"></h2>
+        <p id="modalDescription" class="mb-4"></p>
+        <input type="file" accept="image/*" id="proofImage" class="hidden" />
+        <div class="flex justify-between">
+          <button id="completeBtn"
+            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Complete</button>
+          <button id="modifyBtn" class="px-4 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-500">Modify</button>
+          <button id="deleteBtn" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
   </div>
 </body>
 

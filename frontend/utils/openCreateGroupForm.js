@@ -3,7 +3,7 @@ import { handleCreateGroupFormSubmit } from "./groupValidations.js";
 
 
 
-  let taskNumber = 0;
+let taskNumber = 0;
 //Renderiza el formulario para crear un nuevo grupo en el chatWindow.
 export function openCreateGroupForm() {
 
@@ -69,28 +69,28 @@ export function openCreateGroupForm() {
     // Periodicity select (hidden by default)
     const periodicityInput = document.createElement("div");
     periodicityInput.classList.add("flex", "flex-col", "gap-1", "hidden");
-    
+
     const periodicityOptions = ["Diaria", "Mensual", "Anual", "Días Especficos", "Dos veces al día"];
-    
+
     for (const value of periodicityOptions) {
       const label = document.createElement("label");
       label.classList.add("flex", "items-center", "gap-2");
-    
+
       const radio = document.createElement("input");
       radio.type = "radio";
       radio.name = `task_periodicity_${taskNumber}`;
       radio.value = value;
-    
+
       label.appendChild(radio);
       label.append(value);
       periodicityInput.appendChild(label);
     }
 
-  
+
     // Specific days select (hidden by default)
     const specificDaysWrapper = document.createElement("div");
     specificDaysWrapper.classList.add("flex", "gap-1", "hidden");
-    
+
     const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
     for (const day of days) {
       const label = document.createElement("label");
@@ -105,7 +105,7 @@ export function openCreateGroupForm() {
       specificDaysWrapper.appendChild(label);
     }
     periodicityInput.appendChild(specificDaysWrapper);
-    
+
     // Remove button
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
@@ -117,19 +117,19 @@ export function openCreateGroupForm() {
     typeContainer.addEventListener("change", () => {
       const isOccasional = occasionalRadio.checked;
       const isPeriodic = periodicRadio.checked;
-    
+
       dateInput.classList.toggle("hidden", !isOccasional);
       periodicityInput.classList.toggle("hidden", !isPeriodic);
     });
 
-    
+
     periodicityInput.addEventListener("change", () => {
       const selected = periodicityInput.querySelector(`input[name="task_periodicity_${taskNumber}"]:checked`);
       const isSpecificDays = selected && selected.value === "Días Especficos";
-    
+
       specificDaysWrapper.classList.toggle("hidden", !isSpecificDays);
     });
-    
+
 
     // Append elements
     taskRow.appendChild(nameInput);

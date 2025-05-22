@@ -87,7 +87,7 @@ CREATE TABLE `chore_completions` (
   `completed_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `proof_image_url` VARCHAR(500) DEFAULT NULL,
   `repeating` ENUM('1', '2') NOT NULL, 
-  PRIMARY KEY (`chore_id`, `user_id`, `completed_at`),
+  PRIMARY KEY (`chore_id`, `user_id`, `completed_at`, `repeating`),
   INDEX (`user_id`),
   FOREIGN KEY (`chore_id`) REFERENCES chores(`chore_id`) ON DELETE CASCADE,
   FOREIGN KEY (`user_id`) REFERENCES users(`user_id`) ON DELETE CASCADE
