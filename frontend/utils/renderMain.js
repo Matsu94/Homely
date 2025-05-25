@@ -69,7 +69,6 @@ export async function renderMain(unreadLookup = {}) {
 
       if (window.innerWidth < 768) {
         document.getElementById("userListDiv").classList.add("hidden");
-        document.getElementById("sections").classList.add("hidden");
         document.getElementById("sectionWindow").classList.remove("hidden");
       }
     });
@@ -88,7 +87,7 @@ export async function renderMain(unreadLookup = {}) {
     const addTaskBtn = document.createElement("button");
     addTaskBtn.type = "button";
     addTaskBtn.textContent = "+";
-    addTaskBtn.classList.add("text-[var(--color-add)]", "ml-10", "text-xl", "hover:bg-[var(--color-add)]", "rounded", "w-8", "border", "border-[var(--color-add)]", "hover:text-white");
+    addTaskBtn.classList.add("text-[var(--color-add)]", "ml-10", "text-xl", "hover:bg-[var(--color-add)]", "rounded", "w-8", "border-2", "border-[var(--color-add)]", "hover:text-white");
     choresSection.appendChild(addTaskBtn);
   //   addTaskBtn.addEventListener("click", () => {
   //     // preventDefault();
@@ -100,7 +99,6 @@ export async function renderMain(unreadLookup = {}) {
 
       if (window.innerWidth < 768) {
         document.getElementById("userListDiv").classList.add("hidden");
-        document.getElementById("sections").classList.add("hidden");
         document.getElementById("sectionWindow").classList.remove("hidden");
       }
     });

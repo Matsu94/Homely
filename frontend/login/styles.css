@@ -16,8 +16,10 @@
     --color-border: #d9d3d8; /* Bordes en modo claro */
     --color-alert: #dd0088;  /* Color de alerta */
     --color-delete: #dd0025;  /* Color de borrar */
-    --color-add: #00dd88;  /* Color de borrar */
+    --color-add: #00dd90;  /* Color de borrar */
     --color-link: #56F; /* Texto links en modo claro */
+    --color-deletehover: #cc0015; /* Color de borrar al pasar el ratón */
+    --color-addhover: #00cc80; /* Color de añadir al pasar el ratón */
 
     /* Variables para conmtenedores de días*/
     --color-daily: #ff4a4a; /* Fondo contenedor diario */
@@ -26,14 +28,12 @@
     --color-days: #33d2dd; /* Fondo contenedor dias */
     --color-twice: #5558ff; /* Fondo contenedor doble al día */
     --color-date: #cf55ff; /* Fondo contenedor fecha */
-    --color-tbd: #ff3a4a; /* Fondo contenedor domingo */
     --color-hoverdaily: #db4242; /* Fondo contenedor diario */
     --color-hovermonth: #d1c849; /* Fondo contenedor mes */
     --color-hoveryear: #45c741; /* Fondo contenedor año */
     --color-hoverdays: #40bec7; /* Fondo contenedor dias */
     --color-hovertwice: #3f41c4; /* Fondo contenedor doble al día */
     --color-hoverdate: #9d42c2; /* Fondo contenedor fecha */
-    --color-hovertbd: #ff3a4a; /* Fondo contenedor domingo */
 
 
   }
@@ -51,9 +51,11 @@
     --color-text: #ffffff;    /*o Texto principal en modo oscuro */
     --color-border: #4f4f4f;  /* Bordes en modo oscuro */
     --color-alert: #dd0088;  /* Color de alerta */
-    --color-delete: #750014;  /* borrar en modo oscuro */
-
+    --color-delete: #750015;  /* borrar en modo oscuro */
+    --color-add: #00aa50;  /* Color de borrar */
     --color-link: #b4b4ff; /* Texto links en modo oscuro */
+    --color-deletehover: #650005; /* Color de borrar al pasar el ratón */
+    --color-addhover: #009040; /* Color de añadir al pasar el ratón */
   }
   :root[data-theme="highContrast"] {
     --color-user: #4DAF7C;   /* Verde vibrante, pero sin ser fluorescente */

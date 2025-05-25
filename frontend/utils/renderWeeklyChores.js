@@ -1,5 +1,8 @@
-import { fetchGroupTasks, completeTask } from "../assets/fetching.js";
+import { fetchGroupTasks, completeTask, modifyTask, deleteTask } from "../assets/fetching.js";
 import { group_id, currentUserId } from "../constants/const.js";
+import { createTaskRow, getTaskDataFromRow } from "./addTaskRow.js";
+
+
 // import { addTaskRow } from "./addTaskRow.js";
 
 export async function renderWeeklyChores() {
@@ -14,7 +17,6 @@ export async function renderWeeklyChores() {
         .then((response) => response.text())
         .then((html) => {
             sectionWindow.innerHTML = html;
-
 
             // Attach modal event logic
             function setupTaskClick(box, task) {
@@ -34,7 +36,7 @@ export async function renderWeeklyChores() {
 
             // Close button
             document.getElementById("closeModal").addEventListener("click", () => {
-                document.getElementById("taskModal").classList.add("hidden");
+                renderWeeklyChores(); // Re-render to reset the modal
             });
 
 
@@ -51,13 +53,66 @@ export async function renderWeeklyChores() {
                 'Domingo': 'sunday'
             };
 
+            const phoneDaysMap = {
+                'phoneMonday': 'monday',
+                'phoneTuesday': 'tuesday',
+                'phoneWednesday': 'wednesday',
+                'phoneThursday': 'thursday',
+                'phoneFriday': 'friday',
+                'phoneSaturday': 'saturday',
+                'phoneSunday': 'sunday'
+            };
+
+            const phoneDaysContainer = document.getElementById("phoneDaysContainer");
+
             // Inside renderWeeklyChores before looping through tasks:
             Object.entries(weekDates).forEach(([dayKey, dateStr]) => {
                 const container = document.getElementById(dayKey);
                 if (container) {
                     container.setAttribute("data-date", dateStr);
                 }
+                if (window.innerWidth < 768) {
+                    container.classList.add("hidden"); // Hide all day containers on mobile
+                }
             });
+
+
+            const phoneDaysContainerBackBtn = document.getElementById("phoneDaysContainerBackBtn");
+            if (window.innerWidth > 768) {
+                phoneDaysContainerBackBtn.classList.add("hidden"); // Hide phone days container on desktop
+            }
+
+            phoneDaysContainerBackBtn.addEventListener("click", () => {
+                sectionWindow.classList.add("hidden");
+                document.getElementById("userListDiv").classList.remove("hidden");
+            });
+
+            const daysContainerBackBtn = document.getElementById("daysContainerBackBtn");
+            if (window.innerWidth > 768 || !phoneDaysContainer.classList.contains("hidden")) {
+                daysContainerBackBtn.classList.add("hidden"); // Hide back button on desktop
+            }
+            daysContainerBackBtn.addEventListener("click", () => {
+                for (const dayValue of Object.values(daysMap)) {
+                    const element = document.getElementById(dayValue);
+                    if (!element.classList.contains("hidden")) {
+                        element.classList.toggle("hidden"); // Hide all day containers
+                    }
+                }
+                phoneDaysContainer.classList.toggle("hidden");
+            });
+
+            for (const [phoneDayKey, phoneDayValue] of Object.entries(phoneDaysMap)) {
+                const element = document.getElementById(phoneDayKey);
+                if (element) {
+                    element.addEventListener("click", () => {
+                        const dayContainer = document.getElementById(phoneDayValue);
+                        if (dayContainer) {
+                            dayContainer.classList.toggle("hidden"); // Toggle visibility of the specific day container
+                        }
+                        phoneDaysContainer.classList.toggle("hidden");
+                    });
+                }
+            }
 
 
             function mapCompletions(task) {
@@ -203,23 +258,49 @@ async function handleComplete(choreId, periodicity) {
 
 
 function handleModify(task) {
-    // abrir ventana para modificar la tarea
+    const modalContent = document.getElementById("taskModalContent");
+    const tasksContainer = document.getElementById("tasksContainer");
 
-    document.getElementById("modalTitle").classList.add("hidden");
-    document.getElementById("modalDescription").classList.add("hidden");
-    document.getElementById("completeBtn").classList.add("hidden");
-    document.getElementById("modifyBtn").classList.add("hidden");
-    document.getElementById("deleteBtn").classList.add("hidden");
-    let change = addTaskRow(0); // ABRIMOS EL CREADOR DE ROWS DE TAREAS PERO YA COMPLETADO CON LAS DE LA TAREA EN CUESTION Y DSPS TIRAMOS EL MODIFY
-    
-    document.createElement("button").type = "submit";
-    let updatedtask = {}
-    updatedtask.chore_id = task.chore_id;
-    task.title = row.querySelector(`input[name="task_name"]`)?.value.trim() || "";
-    task.description = row.querySelector(`input[name="task_description"]`)?.value.trim() || "";
+    // Hide existing modal content
+    modalContent.classList.add("hidden"); // Clear modal content
 
-    modifyTask(change);
-    renderWeeklyChores();
+    // Create form with current task data
+    const row = createTaskRow(task, 0);
+    tasksContainer.appendChild(row);
+    document.getElementById("removeTaskBtn").classList.add("hidden");
+
+    // Create button container with justify-between
+    const buttonContainer = document.createElement("div");
+    buttonContainer.classList.add("flex", "justify-center", "gap-20", "mt-4", "w-full");
+
+    // Add submit button
+    const submitBtn = document.createElement("button");
+    submitBtn.type = "button";
+    submitBtn.textContent = "Guardar Cambios";
+    submitBtn.classList.add("px-4", "py-2", "bg-[var(--color-add)]", "text-white", "hover:bg-[var(--color-addhover)]", "rounded", "mt-4");
+    submitBtn.addEventListener("click", async () => {
+        const updatedTask = getTaskDataFromRow(row, 0);
+        await modifyTask(task.chore_id, updatedTask);
+        renderWeeklyChores();
+    });
+
+    // Add cancel button
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.textContent = "Cancelar Cambios";
+    cancelBtn.classList.add("px-4", "py-2", "bg-[var(--color-delete)]", "text-white", "hover:bg-[var(--color-deletehover)]", "rounded", "mt-4");
+    cancelBtn.addEventListener("click", async () => {
+        tasksContainer.innerHTML = ""; // Clear tasks container
+        modalContent.classList.remove("hidden"); // Show original modal content
+
+    });
+
+    // Append buttons to container
+    buttonContainer.appendChild(cancelBtn);
+    buttonContainer.appendChild(submitBtn);
+
+    // Append container to tasksContainer
+    tasksContainer.appendChild(buttonContainer);
 }
 
 function handleDelete(choreId) {

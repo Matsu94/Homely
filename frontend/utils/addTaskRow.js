@@ -1,145 +1,223 @@
+export function createTaskRow(task = {}, taskNumber = 0) {
+    const taskRow = document.createElement("div");
+    taskRow.classList.add("task-row", "flex", "flex-wrap", "gap-2", "items-center", "mb-2", "border-b", "pb-2");
 
-// export function addTaskRow(taskNumber = 0, task = {}) {
-//     const tasksContainer = document.getElementById("tasksContainer");
+    // Create form elements
+    const nameInput = createInputElement({
+        type: "text",
+        name: "task_name",
+        placeholder: "Nombre tarea",
+        value: task.title || "",
+        required: true,
+        className: "w-1/4 px-5 py-3 bg-[var(--color-base)] rounded border border-[var(--color-border)]"
+    });
 
-//     const taskRow = document.createElement("div");
-//     taskRow.classList.add("task-row", "flex", "flex-wrap", "gap-2", "items-center", "mb-2", "border-b", "pb-2");
+    const descInput = createInputElement({
+        type: "text",
+        name: "task_description",
+        placeholder: "Descripción tarea",
+        value: task.description || "",
+        className: "w-1/3 px-5 py-3 bg-[var(--color-base)] rounded border border-[var(--color-border)]"
+    });
 
-//     // Name input
-//     const nameInput = document.createElement("input");
-//     nameInput.type = "text";
-//     nameInput.name = `task_name`;
-//     nameInput.placeholder = "Nombre tarea";
-//     nameInput.required = true;
-//     nameInput.value = task.title || "";
-//     nameInput.className = "w-1/4 px-5 py-3 bg-[var(--color-base)] rounded border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-headers)] text-black";
+    // Type selection
+    const typeContainer = document.createElement("div");
+    typeContainer.classList.add("flex", "gap-2");
 
-//     // Description input
-//     const descInput = document.createElement("input");
-//     descInput.type = "text";
-//     descInput.name = `task_description`;
-//     descInput.placeholder = "Descripción tarea";
-//     descInput.className = "w-1/3 px-5 py-3 bg-[var(--color-base)] rounded border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-headers)] text-black";
+    const occasionalRadio = createRadioElement({
+        name: `task_type_${taskNumber}`,
+        value: "occasional",
+        checked: task.type === "occasional",
+        label: "Ocasional"
+    });
 
-//     // Type select
-//     const typeContainer = document.createElement("div");
-//     typeContainer.classList.add("flex", "gap-2");
+    const periodicRadio = createRadioElement({
+        name: `task_type_${taskNumber}`,
+        value: "periodic",
+        checked: task.type === "periodic",
+        label: "Periódica"
+    });
 
-//     // Occasional
-//     const occasionalRadio = document.createElement("input");
-//     occasionalRadio.classList.add("ml-1");
-//     occasionalRadio.type = "radio";
-//     occasionalRadio.name = `task_type_${taskNumber}`;
-//     occasionalRadio.value = "occasional";
-//     occasionalRadio.required = true;
+    typeContainer.append(occasionalRadio.container, periodicRadio.container);
 
-//     const occasionalLabel = document.createElement("label");
-//     occasionalLabel.textContent = "Ocasional";
-//     occasionalLabel.appendChild(occasionalRadio);
+    // Date input
+    const dateInput = createInputElement({
+        type: "date",
+        name: "date_limit",
+        value: task.date_limit || "",
+        className: "border rounded px-2 py-1 text-black hidden"
+    });
 
-//     // Periodic
-//     const periodicRadio = document.createElement("input");
-//     periodicRadio.classList.add("ml-1");
-//     periodicRadio.type = "radio";
-//     periodicRadio.name = `task_type_${taskNumber}`;
-//     periodicRadio.value = "periodic";
+    // Periodicity options
+    const periodicityInput = createPeriodicityInput(taskNumber, task.periodicity, task.specific_days);
 
-//     const periodicLabel = document.createElement("label");
-//     periodicLabel.textContent = "Periodica";
-//     periodicLabel.appendChild(periodicRadio);
+    // Remove button
+    const removeBtn = createRemoveButton();
 
-//     // Append both to container
-//     typeContainer.appendChild(occasionalLabel);
-//     typeContainer.appendChild(periodicLabel);
+    // Append all elements
+    taskRow.append(
+        nameInput,
+        descInput,
+        typeContainer,
+        dateInput,
+        periodicityInput.container,
+        removeBtn
+    );
 
-//     // Date input (hidden by default)
-//     const dateInput = document.createElement("input");
-//     dateInput.type = "date";
-//     dateInput.name = `task_date_${taskNumber}`;
-//     dateInput.classList.add("border", "rounded", "px-2", "py-1", "text-black", "hidden");
+    // Setup event listeners
+    setupTaskRowEvents(taskRow, taskNumber, periodicityInput);
 
-//     // Periodicity select (hidden by default)
-//     const periodicityInput = document.createElement("div");
-//     periodicityInput.classList.add("flex", "flex-col", "gap-1", "hidden");
+    return taskRow;
+}
+
+// Helper functions
+function createInputElement({ type, name, placeholder, value, required, className }) {
+    const input = document.createElement("input");
+    input.type = type;
+    input.name = name;
+    if (placeholder) input.placeholder = placeholder;
+    if (value) input.value = value;
+    if (required) input.required = required;
+    if (className) input.className = className;
+    return input;
+}
+
+function createRadioElement({ name, value, checked, label }) {
+    const container = document.createElement("label");
+    container.classList.add("flex", "items-center", "gap-2");
+
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = name;
+    radio.value = value;
+    radio.checked = checked;
+    radio.classList.add("ml-1");
+
+    const text = document.createTextNode(label);
+
+    container.append(radio, text);
+    return { container, radio };
+}
+
+function createPeriodicityInput(taskNumber, selectedPeriodicity, selectedDays = "") {
+    const container = document.createElement("div");
+    container.classList.add("flex", "flex-col", "gap-1", "hidden");
+
+    const periodicityOptions = ["Diaria", "Mensual", "Anual", "Días Especficos", "Dos veces al día"];
+    const radios = [];
+
+    periodicityOptions.forEach(value => {
+        const option = createRadioElement({
+            name: `task_periodicity_${taskNumber}`,
+            value,
+            checked: value === selectedPeriodicity,
+            label: value
+        });
+        container.appendChild(option.container);
+        radios.push(option.radio);
+    });
+
+    // Specific days checkboxes
+    const specificDaysWrapper = document.createElement("div");
+    specificDaysWrapper.classList.add("flex", "gap-1", "hidden");
+
+    const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+    days.forEach(day => {
+        const checkbox = createInputElement({
+            type: "checkbox",
+            name: "task_specific_days",
+            value: day,
+            checked: selectedDays?.includes(day)
+        });
+
+        const label = document.createElement("label");
+        label.classList.add("flex", "items-center", "gap-1");
+        label.append(checkbox, day);
+        specificDaysWrapper.appendChild(label);
+    });
+
+    container.appendChild(specificDaysWrapper);
+
+    return {
+        container,
+        specificDaysWrapper,
+        radios  // Return all radio elements
+    };
+}
+
+function createRemoveButton() {
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.id = "removeTaskBtn";
+    removeBtn.textContent = "✕";
+    removeBtn.classList.add("text-[var(--color-delete)]", "m-auto", "text-xl", "hover:bg-[var(--color-delete)]",
+        "rounded-full", "w-8", "border", "border-[var(--color-delete)]", "hover:text-white");
+    removeBtn.addEventListener("click", (e) => {
+        e.target.closest(".task-row").remove();
+    });
+    return removeBtn;
+}
+
+function setupTaskRowEvents(taskRow, taskNumber, periodicityInput) {
+    // Get all relevant elements
+    const typeRadios = taskRow.querySelectorAll(`input[name="task_type_${taskNumber}"]`);
+    const dateInput = taskRow.querySelector(`input[name="date_limit"]`);
+    const periodicityContainer = periodicityInput.container;
     
-//     const periodicityOptions = ["Diaria", "Mensual", "Anual", "Días Especficos", "Dos veces al día"];
+    // Check which type is initially selected
+    const initialType = taskRow.querySelector(`input[name="task_type_${taskNumber}"]:checked`)?.value;
     
-//     for (const value of periodicityOptions) {
-//       const label = document.createElement("label");
-//       label.classList.add("flex", "items-center", "gap-2");
-    
-//       const radio = document.createElement("input");
-//       radio.type = "radio";
-//       radio.name = `task_periodicity_${taskNumber}`;
-//       radio.value = value;
-    
-//       label.appendChild(radio);
-//       label.append(value);
-//       periodicityInput.appendChild(label);
-//     }
+    // Initialize visibility based on initial type
+    if (initialType === "occasional") {
+        if (dateInput) dateInput.classList.remove("hidden");
+        if (periodicityContainer) periodicityContainer.classList.add("hidden");
+    } else {
+        if (dateInput) dateInput.classList.add("hidden");
+        if (periodicityContainer) periodicityContainer.classList.remove("hidden");
+        
+        // If periodic, check if we need to show specific days
+        const initialPeriodicity = taskRow.querySelector(`input[name="task_periodicity_${taskNumber}"]:checked`)?.value;
+        if (initialPeriodicity === "Días Especficos") {
+            periodicityInput.specificDaysWrapper.classList.remove("hidden");
+        }
+    }
 
-  
-//     // Specific days select (hidden by default)
-//     const specificDaysWrapper = document.createElement("div");
-//     specificDaysWrapper.classList.add("flex", "gap-1", "hidden");
-    
-//     const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-//     for (const day of days) {
-//       const label = document.createElement("label");
-//       const checkbox = document.createElement("input");
-//       label.classList.add("flex", "items-center", "gap-2");
-//       checkbox.type = "checkbox";
-//       checkbox.name = `task_specific_days`;
-//       checkbox.value = day;
+    // Set up change handlers
+    typeRadios.forEach(radio => {
+        radio.addEventListener("change", () => {
+            const isOccasional = radio.value === "occasional";
+            if (dateInput) dateInput.classList.toggle("hidden", !isOccasional);
+            if (periodicityContainer) periodicityContainer.classList.toggle("hidden", isOccasional);
+        });
+    });
 
-//       label.appendChild(checkbox);
-//       label.append(day);
-//       specificDaysWrapper.appendChild(label);
-//     }
-//     periodicityInput.appendChild(specificDaysWrapper);
-    
-//     // Remove button
-//     const removeBtn = document.createElement("button");
-//     removeBtn.type = "button";
-//     removeBtn.textContent = "✕";
-//     removeBtn.classList.add("text-[var(--color-delete)]", "m-auto", "text-xl", "hover:bg-[var(--color-delete)]", "rounded-full", "w-8", "border", "border-[var(--color-delete)]", "hover:text-white");
-//     removeBtn.addEventListener("click", () => taskRow.remove());
+    periodicityInput.radios.forEach(radio => {
+        radio.addEventListener("change", () => {
+            const showDays = radio.value === "Días Especficos";
+            periodicityInput.specificDaysWrapper.classList.toggle("hidden", !showDays);
+        });
+    });
+}
 
-//     // Change behavior
-//     typeContainer.addEventListener("change", () => {
-//       const isOccasional = occasionalRadio.checked;
-//       const isPeriodic = periodicRadio.checked;
-    
-//       dateInput.classList.toggle("hidden", !isOccasional);
-//       periodicityInput.classList.toggle("hidden", !isPeriodic);
-//     });
+// Function to extract task data from a row
+export function getTaskDataFromRow(row, index) {
+    const task = {
+        title: row.querySelector(`input[name="task_name"]`)?.value.trim() || "",
+        description: row.querySelector(`input[name="task_description"]`)?.value.trim() || "",
+        type: row.querySelector(`input[name="task_type_${index}"]:checked`)?.value || "periodic"
+    };
 
-    
-//     periodicityInput.addEventListener("change", () => {
-//       const selected = periodicityInput.querySelector(`input[name="task_periodicity_${taskNumber}"]:checked`);
-//       const isSpecificDays = selected && selected.value === "Días Especficos";
-    
-//       specificDaysWrapper.classList.toggle("hidden", !isSpecificDays);
-//     });
-    
+    if (task.type === "occasional") {
+        task.date_limit = row.querySelector(`input[name="date_limit"]`)?.value || null;
+    } else {
+        task.periodicity = row.querySelector(`input[name="task_periodicity_${index}"]:checked`)?.value || "Diaria";
 
-//     // Append elements
-//     taskRow.appendChild(nameInput);
-//     taskRow.appendChild(descInput);
-//     taskRow.appendChild(typeContainer);
-//     taskRow.appendChild(dateInput);
-//     taskRow.appendChild(periodicityInput);
-//     taskRow.appendChild(specificDaysWrapper);
-//     taskRow.appendChild(removeBtn);
+        if (task.periodicity === "Días Especficos") {
+            task.specific_days = Array.from(
+                row.querySelectorAll(`input[name="task_specific_days"]:checked`)
+            ).map(cb => cb.value);
+        }
+    }
 
-//     tasksContainer.prepend(taskRow); // Add on top of existing tasks (before the button)
-//   }
-
-
-//   const addTaskBtn = document.getElementById("addTaskBtn");
-
-//   addTaskBtn.addEventListener("click", (e) => {
-//     e.preventDefault();
-//     addTaskRow(taskNumber);         // add the row
-//     taskNumber++;                   // increment the task number
-//   });
+    return task;
+}

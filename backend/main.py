@@ -177,8 +177,8 @@ def delete_task(task_id: int, db: Matias = Depends(get_db), user: str = Depends(
     return db.deleteTask(task_id)
 
 @app.put("/update_task/{task_id}")
-def update_task(task: Task, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
-    return db.updateTask(task)
+def update_task(task_id: int, task: Task, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    return db.updateTask(task_id, task)
 
 
 

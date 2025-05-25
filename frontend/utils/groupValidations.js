@@ -32,8 +32,8 @@ export async function handleCreateGroupFormSubmit() {
         task.type = type;
 
         if (type === "occasional") {
-            task.date = row.querySelector(`input[name="task_date_${index}"]`)?.value || null;
-            if (task.date < Date.now()) {
+            task.date_limit = row.querySelector(`input[name="date_limit"]`)?.value || null;
+            if (task.date_limit < Date.now()) {
                 createGroupError.textContent = "La fecha de la tarea ocasional no puede ser anterior a la fecha actual.";
                 return;
             }
@@ -47,7 +47,6 @@ export async function handleCreateGroupFormSubmit() {
                 task.specific_days = selectedDays;
             }
         }
-
 
         tasks.push(task);
     });

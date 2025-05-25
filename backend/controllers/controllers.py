@@ -134,7 +134,7 @@ class Matias(object):
                 task.type,
                 task.periodicity,
                 days_str,
-                task.date
+                task.date_limit
             ))
         return self.cursor.lastrowid
     
@@ -149,16 +149,17 @@ class Matias(object):
         self.cursor.execute(sql, (task_id,))
         return self.cursor.rowcount
     
-    def updateTask(self, task):
+    def updateTask(self, task_id, task):
         sql = updateTask
+        days_str = ",".join(task.specific_days) if task.specific_days else None
         self.cursor.execute(sql, (
             task.title,
             task.description,
             task.type,
             task.periodicity,
-            task.specific_days,
-            task.date,
-            task.task_id,
+            days_str,
+            task.date_limit,
+            task_id,
         ))
         return self.cursor.rowcount
     
