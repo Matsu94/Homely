@@ -1,4 +1,5 @@
 export const errorStartSession = "Error al iniciar sesión";
+export const registerError = "Error al registrar usuario";
 export const requestError = "Error en la solicitud";
 export const getUsersError = "Error al obtener usuarios";
 export const getMessagesError = "Error al obtener mensajes";
@@ -21,3 +22,6 @@ export const saveGroupChangesError = "Error al guardar los cambios del grupo"
 export const getGroupInfoError = "Error al obtener la información del grupo"
 export const updateGroupError = "Error al actualizar el grupo"
 export const removeUserError = "Error al remover usuario"
+export const joinGroupError = "Error al unirse al grupo"
+export const createTaskError = "Error al crear tareas para el grupo"
+export const getGroupTasksError = "Error al obtener las tareas del grupo"

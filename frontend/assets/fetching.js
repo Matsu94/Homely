@@ -1,4 +1,4 @@
-import { URL, token } from '../constants/const.js';
+import { URL, token, group_id, currentUserId } from '../constants/const.js';
 import * as errors from '../errors/errors.js';
 
 
@@ -10,14 +10,14 @@ export async function registerUser(username, password) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username, password})
+            body: JSON.stringify({ username, password })
         });
 
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`${errors.registerError} ${response.status} - ${JSON.stringify(errorData)}`);
         }
-        
+
         const response2 = await fetch(`${URL}/token`, {
             method: 'POST',
             headers: {
@@ -35,7 +35,59 @@ export async function registerUser(username, password) {
         sessionStorage.setItem('username', username);
         sessionStorage.setItem('user_id', data2.user_id);
 
-        window.location.href = '../opcionesUsuarioNuevo.html';
+        window.location.href = '../components/opcionesUsuarioNuevo.html';
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('passMsg').textContent = `${error}`;
+    }
+}
+
+export async function getInvitationCode() {
+    try {
+        const response = await fetch(`${URL}/create_group_invitation/${group_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Descomenta si tu endpoint requiere token
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Error al obtener chats: ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+
+        const data = await response.json();
+
+        return data;
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function joinGroup(code) {
+    // Unir usuario a grupo mediante invitación
+    try {
+        const response = await fetch(`${URL}/join_group`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Descomenta si tu endpoint requiere token
+            },
+            body: JSON.stringify({ group_code: code })
+
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`${errors.joinGroupError} ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+
+        const data = await response.json();
+        sessionStorage.setItem('group_id', data); // Guardar el ID del grupo al que se unió
+        window.location.href = '../inicio.html';
+
     } catch (error) {
         console.error('Error:', error);
         document.getElementById('passwordError').textContent = `${errors.errorStartSession}`;
@@ -61,7 +113,12 @@ export async function fetchToken(username, password) {
         sessionStorage.setItem('token', data.access_token);
         sessionStorage.setItem('username', username);
         sessionStorage.setItem('user_id', data.user_id);
-        window.location.href = '../inicio.html';
+        sessionStorage.setItem('group_id', data.group_id);
+        if (data.group_id === null) {
+            window.location.href = '../components/opcionesUsuarioNuevo.html';
+        } else {
+            window.location.href = '../inicio.html';
+        }
     } catch (error) {
         console.error('Error:', error);
         document.getElementById('passwordError').textContent = `${errors.errorStartSession}`;
@@ -70,7 +127,7 @@ export async function fetchToken(username, password) {
 
 export async function fetchChats() {
     try {
- // Si requieres autenticación
+        // Si requieres autenticación
 
         const response = await fetch(`${URL}/chats`, {
             method: 'GET',
@@ -216,10 +273,9 @@ export async function fetchGroupMessageStatus(messageId) {
     }
 }
 
-// crear grupo
-export async function createGroup(groupObj) {
+// crear grupo + tareas
+export async function createGroup(groupObj, tasks) {
     try {
-
         const response = await fetch(`${URL}/create_group`, {
             method: 'POST',
             headers: {
@@ -235,17 +291,156 @@ export async function createGroup(groupObj) {
         }
 
         const data = await response.json();
-        return data; // { "group_id": 5 }
+        sessionStorage.setItem('group_id', data); // Guardar el ID del grupo creado
+
+
+        const payload = {
+            group_id: data,
+            tasks: tasks
+        };
+        const response2 = await fetch(`${URL}/add_tasks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response2.ok) {
+            const errorData = await response2.json();
+            throw new Error(`${errors.createTaskError} ${response2.status} - ${JSON.stringify(errorData)}`);
+        }
+
+        const data2 = await response2.json();
+        window.location.href = '../inicio.html';
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+// CARGAR TAREAS GRUPO
+export async function fetchGroupTasks(group_id) {
+    try {
+        const response = await fetch(`${URL}/get_tasks/${group_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`${errors.getGroupTasksError}, ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+// UPLOAD IMAGE
+export async function uploadImage(formData) {
+    try {
+        const uploadResponse = await fetch(`${URL}/upload_image`, {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        if (!uploadResponse.ok) {
+            const error = await uploadResponse.json();
+            throw new Error(`Error subiendo imagen: ${JSON.stringify(error)}`);
+        }
+
+        const { image_url } = await uploadResponse.json();
+        return image_url; // Retorna la URL de la imagen
+
+    } catch (err) {
+        alert("Error al completar la tarea: " + err.message);
+    }
+}
+
+// COMPLETAR TAREA
+export async function completeTask(task_id, imgURL, periodicity) {
+    // Unir usuario a grupo mediante invitación
+    try {
+        const response = await fetch(`${URL}/complete_task/${task_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                img_url: imgURL,
+                periodicity
+            })
+
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`${errors.completeTaskError} ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+        const data = await response.json();
+
     } catch (error) {
         throw error;
     }
 }
 
 
+export async function modifyTask(task_id, taskObj) {
+    try {
+        const response = await fetch(`${URL}/update_task/${task_id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(taskObj)
+        });
+
+        if (!response.ok) {
+            throw new Error(`${errors.updateTaskError}, ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+// ELIMINAR TAREA
+export async function deleteTask(task_id) {
+    try {
+        const response = await fetch(`${URL}/delete_task/${task_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`${errors.deleteTaskError}, ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+
 //CARGAR INFO GRUPO
 export async function fetchGroupInfo(group_id) {
     try {
- // Si requieres autenticación
+        // Si requieres autenticación
 
         const response = await fetch(`${URL}/group_info/${group_id}`, {
             method: 'GET',
@@ -352,9 +547,9 @@ export async function removeUserFromGroup(group_id, userId) {
     }
 }
 
-export async function updateUserToAdmin(group_id, userId)  {
+export async function updateUserToAdmin(group_id, userId) {
     try {
- 
+
 
         const response = await fetch(`${URL}/add_admin/${group_id}/${userId}`, {
             method: 'PUT',
@@ -374,25 +569,25 @@ export async function updateUserToAdmin(group_id, userId)  {
     }
 }
 
-export async function addUsersToGroup(group_id, usersIds) {
-    try {
+// export async function addUsersToGroup(group_id, usersIds) {
+//     try {
 
-        const response = await fetch(`${URL}/add_users/${group_id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ Members: usersIds })
-        });
-        if (!response.ok) {
-            throw new Error(`${errors.promoteUserError}, ${response.status}`);
-        }
-        return await response.json();
-    } catch (error) {
-        throw error;
-    }
-}
+//         const response = await fetch(`${URL}/add_users/${group_id}`, {
+//             method: 'PUT',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${token}`
+//             },
+//             body: JSON.stringify({ Members: usersIds })
+//         });
+//         if (!response.ok) {
+//             throw new Error(`${errors.promoteUserError}, ${response.status}`);
+//         }
+//         return await response.json();
+//     } catch (error) {
+//         throw error;
+//     }
+// }
 
 export async function leaveGroup(group_id) {
     try {
@@ -405,11 +600,14 @@ export async function leaveGroup(group_id) {
         });
 
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.detail);  // Error means they can't leave
-        }
+        }        
 
+        // Clear session storage and redirect
+        sessionStorage.removeItem('group_id');
+        window.location.href = 'components/opcionesUsuarioNuevo.html';
         return { ok: true, data };  // Successful case
 
     } catch (error) {

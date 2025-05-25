@@ -1,5 +1,6 @@
 import { openChat } from "./openChat.js";
 import { formatDate } from './formatDate.js'; 
+import { renderWeeklyChores } from "./renderWeeklyChores.js";
 import { currentUserId } from "../constants/const.js";
 import { fetchChats } from "../assets/fetching.js";
 
@@ -68,8 +69,7 @@ export async function renderMain(unreadLookup = {}) {
 
       if (window.innerWidth < 768) {
         document.getElementById("userListDiv").classList.add("hidden");
-        document.getElementById("sections").classList.add("hidden");
-        document.getElementById("chatWindow").classList.remove("hidden");
+        document.getElementById("sectionWindow").classList.remove("hidden");
       }
     });
 
@@ -77,10 +77,31 @@ export async function renderMain(unreadLookup = {}) {
     const choresSection = document.createElement('div');
     choresSection.className = "m-1 h-40 sm:h-48 flex items-center justify-center hover:bg-[var(--color-border)] cursor-pointer rounded-lg border-4 border-gray-300";
     const choresTitle = document.createElement('span');
-    choresTitle.className = "title-font text-[var(--color-text)]";
+    choresTitle.className = "ml-20 title-font text-[var(--color-text)]";
     choresTitle.innerText = "Tareas";
     choresSection.appendChild(choresTitle);
     sections.appendChild(choresSection);
+
+    
+    // Add button
+    const addTaskBtn = document.createElement("button");
+    addTaskBtn.type = "button";
+    addTaskBtn.textContent = "+";
+    addTaskBtn.classList.add("text-[var(--color-add)]", "ml-10", "text-xl", "hover:bg-[var(--color-add)]", "rounded", "w-8", "border-2", "border-[var(--color-add)]", "hover:text-white");
+    choresSection.appendChild(addTaskBtn);
+  //   addTaskBtn.addEventListener("click", () => {
+  //     // preventDefault();
+  //     addTaskGroup();
+  // });
+
+    choresSection.addEventListener("click", () => {
+        renderWeeklyChores();
+
+      if (window.innerWidth < 768) {
+        document.getElementById("userListDiv").classList.add("hidden");
+        document.getElementById("sectionWindow").classList.remove("hidden");
+      }
+    });
 
     sections.appendChild(chatSection);
 
@@ -91,4 +112,13 @@ export async function renderMain(unreadLookup = {}) {
     logsTitle.innerText = "Historial";
     logsSection.appendChild(logsTitle);
     sections.appendChild(logsSection);
+
+
+    const stockSection = document.createElement('div');
+    stockSection.className = "m-1 h-40 sm:h-48 flex items-center justify-center hover:bg-[var(--color-border)] cursor-pointer rounded-lg border-4 border-gray-300";
+    const stockTitle = document.createElement('span');
+    stockTitle.className = "title-font text-[var(--color-text)]";
+    stockTitle.innerText = "Inventario";
+    stockSection.appendChild(stockTitle);
+    sections.appendChild(stockSection);
 }

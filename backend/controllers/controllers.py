@@ -1,3 +1,5 @@
+from datetime import datetime
+import calendar
 import pymysql.cursors
 from queries.queries import *
 from werkzeug.security import generate_password_hash
@@ -105,23 +107,82 @@ class Matias(object):
     #   Operaciones sobre Grupos
     # ------------------------------------------------
     
-    #Query to get user groups (1g)
-    def getGroups(self, user_id):
-        sql = getGroups
-        self.cursor.execute(sql, (user_id,))
-        return self.cursor.fetchall()
 
     # Query to create a group (2g)
     def createGroup(self, group):
         sql = createGroup
-        self.cursor.execute(sql, (group.Name, group.Description, group.Creator_ID))
+        self.cursor.execute(sql, (group.Name, group.Description, group.Creator_ID, group.Address))
         group_id = self.cursor.lastrowid
         sql = insertGroupAdmin
         self.cursor.execute(sql, (group_id, group.Creator_ID))
-        for member in group.Members:
-            sql = insertGroupMemnber
-            self.cursor.execute(sql, (group_id, member))
         return group_id
+    
+    def addTasksToGroup(self, group_id, tasks):
+        for task in tasks:
+            sql = addTaskToGroup
+            days_str = ",".join(task.specific_days) if task.specific_days else None
+            # now = datetime.now()
+            # Set default fecha_límite if missing
+            # if task.periodicity == "Mensual" and task.date is None:
+            #     task.date = datetime(now.year, now.month, calendar.monthrange(now.year, now.month)[1])
+            # elif task.periodicity == "Anual" and task.date is None:
+            #     task.date = datetime(now.year, 12, 31)
+            self.cursor.execute(sql, (
+                group_id,
+                task.title,
+                task.description,
+                task.type,
+                task.periodicity,
+                days_str,
+                task.date_limit
+            ))
+        return self.cursor.lastrowid
+    
+    def getTasks(self, group_id):
+        sql = getTasks
+        self.cursor.execute(sql, (group_id,))
+        res = self.cursor.fetchall()
+        return res
+    
+    def deleteTask(self, task_id):
+        sql = deleteTask
+        self.cursor.execute(sql, (task_id,))
+        return self.cursor.rowcount
+    
+    def updateTask(self, task_id, task):
+        sql = updateTask
+        days_str = ",".join(task.specific_days) if task.specific_days else None
+        self.cursor.execute(sql, (
+            task.title,
+            task.description,
+            task.type,
+            task.periodicity,
+            days_str,
+            task.date_limit,
+            task_id,
+        ))
+        return self.cursor.rowcount
+    
+    def completeTask(self, task_id, user_id, img_url, periodicity):
+        complete = completeTask
+        if periodicity != "Dos veces al día":
+            self.cursor.execute(complete, (task_id, user_id, img_url, 1))
+        else :
+            sql = checkIteration
+            self.cursor.execute(sql, (task_id,))
+            iteration = self.cursor.fetchone()
+            if not iteration:
+                self.cursor.execute(complete, (task_id, user_id, img_url, 1))
+            else:
+                self.cursor.execute(complete, (task_id, user_id, img_url, 2))
+        return self.cursor.lastrowid
+    
+    
+    def getCompletions(self, group_id):
+        sql = getCompletions
+        self.cursor.execute(sql, (group_id,))
+        res = self.cursor.fetchall()
+        return res
     
     def getMembers(self, group_id):
         sql = getMembers
@@ -134,11 +195,17 @@ class Matias(object):
         return self.cursor.fetchone()
     
     # Query to add a user to a group (3g)
-    def addUsersToGroup(self, group_id, member_id): 
-                sql = insertGroupMembers
-                self.cursor.execute(sql, (group_id, member_id))
-                return self.cursor.rowcount
+    # def addUsersToGroup(self, group_id, member_id): 
+    #             sql = insertGroupMembers
+    #             self.cursor.execute(sql, (group_id, member_id))
+    #             return self.cursor.rowcount
 
+    # Query to save invitation code
+    def saveInvitationCode(self, group_id, invitation_code):
+        print("Saving invitation code:", group_id, invitation_code)
+        sql = saveInvitationCode
+        self.cursor.execute(sql, (group_id, invitation_code))
+        return self.cursor.lastrowid
 
     # Query to delete a user from a group (3g)
     def deleteUserFromGroup(self, group_id, member_id, admin_id):
@@ -206,7 +273,23 @@ class Matias(object):
 
     def registerUser(self, user):
         sql = registerUser
+        print(user.username, user.password)
         # Hash the password before storing it
-        hashed_password = generate_password_hash(user.password, method='sha256', salt_length=8)
+        hashed_password = generate_password_hash(user.password, method='scrypt:32768:8:1', salt_length=8)
         self.cursor.execute(sql, (user.username, hashed_password))
         return self.cursor.lastrowid
+    
+    def checkInvitationCode(self, code):
+        sql = checkInvitationCode
+        self.cursor.execute(sql, (code,))
+        return self.cursor.fetchone()
+    
+    def joinGroup(self, group_id, user_id):
+        sql = joinGroup
+        self.cursor.execute(sql, (group_id, user_id))
+        return self.cursor.rowcount
+    
+    def deleteInvitation(self, code, group_id):
+        sql = deleteInvitation
+        self.cursor.execute(sql, (code, group_id))
+        return self.cursor.rowcount

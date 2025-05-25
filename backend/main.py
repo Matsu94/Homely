@@ -1,4 +1,4 @@
-from fastapi import Body, FastAPI, Depends, HTTPException, status, WebSocket, WebSocketDisconnect
+from fastapi import Body, FastAPI, Depends, HTTPException, status, WebSocket, WebSocketDisconnect, UploadFile, File, Form
 from controllers.jwt_auth_users import *
 from controllers.controllers import Matias
 from models.models import *
@@ -7,6 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from typing import Dict, Set
 import json
+import secrets
+import string
+import os
+from uuid import uuid4
 
 app = FastAPI()
 app.add_middleware(
@@ -134,6 +138,54 @@ def change_state(
 def create_group(group: Group, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
     return db.createGroup(group)
 
+@app.post("/add_tasks")
+def add_tasks(payload: TaskPayload, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    return db.addTasksToGroup(payload.group_id, payload.tasks)
+
+@app.get("/get_tasks/{group_id}")
+def get_tasks(group_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    return db.getTasks(group_id)
+
+
+@app.post("/upload_image")
+async def upload_image(chore_id: int = Form(...), file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    upload_dir = "uploaded_images"
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    ext = file.filename.split(".")[-1]
+    filename = f"{uuid4().hex}_{user['user_id']}_{chore_id}.{ext}"
+    file_path = os.path.join(upload_dir, filename)
+
+    with open(file_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+
+    image_url = f"/{file_path}"  # Update this if serving images through static route
+
+    return {"image_url": image_url}
+
+@app.post("/complete_task/{task_id}")
+def complete_task(task_id: int, payload: dict, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    img_url = payload.get("img_url")
+    periodicity = payload.get("periodicity")
+    user_id = user['user_id']
+    return db.completeTask(task_id, user_id, img_url, periodicity)
+
+
+@app.delete("/delete_task/${task_id}")
+def delete_task(task_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    return db.deleteTask(task_id)
+
+@app.put("/update_task/{task_id}")
+def update_task(task_id: int, task: Task, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    return db.updateTask(task_id, task)
+
+
+
+@app.get("/completions/{group_id}")
+def get_completions(group_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    return db.getCompletions(group_id)
+
 # Endpoint to get members of a group
 @app.get("/get_members/{group_id}")
 def get_members(group_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
@@ -143,13 +195,21 @@ def get_members(group_id: int, db: Matias = Depends(get_db), user: str = Depends
 def group_info(group_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
     return db.groupinfo(group_id)
 
+@app.get("/create_group_invitation/{group_id}")
+def create_group_invitation(group_id: int, length = 10, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    chars = string.ascii_uppercase + string.digits  # A-Z, 0-9
+    invitation_code = ''.join(secrets.choice(chars) for _ in range(length))
+    print(f"Generated invitation code: {invitation_code} for group ID: {group_id}")
+    db.saveInvitationCode(group_id, invitation_code)
+    return invitation_code
+
 # Endpoint to add a user to a group (3g)
-@app.put("/add_users/{group_id}")
-def add_users_to_group(group_id: int, newMembers: NewMembers, db: Matias = Depends(get_db), admin: str = Depends(get_current_user)):
-    res = 0
-    for member_id in newMembers.Members:
-        res += db.addUsersToGroup(group_id, member_id)
-    return {"message": "Usuarios añadidos correctamente.", "result": res}
+# @app.put("/add_users/{group_id}")
+# def add_users_to_group(group_id: int, newMembers: NewMembers, db: Matias = Depends(get_db), admin: str = Depends(get_current_user)):
+#     res = 0
+#     for member_id in newMembers.Members:
+#         res += db.addUsersToGroup(group_id, member_id)
+#     return {"message": "Usuarios añadidos correctamente.", "result": res}
 
 # Endpoint to delete a user from a group (3g)
 @app.delete("/remove_user/{group_id}/{member_id}")
@@ -202,12 +262,24 @@ async def login(user: User, db: Matias = Depends(get_db)):
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"username": authenticated_user["username"], "user_id": authenticated_user["user_id"]}, expires_delta=access_token_expires
+        data={"username": authenticated_user["username"], "user_id": authenticated_user["user_id"], "group_id": authenticated_user["group_id"]}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer", "user_id": authenticated_user["user_id"]}
+    return {"access_token": access_token, "token_type": "bearer", "user_id": authenticated_user["user_id"], "group_id": authenticated_user["group_id"]}
 
 # Endpoint to register a new user
 @app.post("/register")
 def register_user(user: User, db: Matias = Depends(get_db)):
     user_id = db.registerUser(user)
     return {"message": "User registered successfully", "user_id": user_id}
+
+@app.post("/join_group")
+def join_group(request: GroupJoinRequest, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    group_code = request.group_code
+    user_id = user['user_id']
+    group_dic = db.checkInvitationCode(group_code)
+    group_id = group_dic.get("group_id") if group_dic else None
+    if group_id is None:
+        raise HTTPException(status_code=400, detail="Invalid group code")
+    db.joinGroup(group_id, user_id)
+    db.deleteInvitation(group_code, group_id)
+    return group_id
