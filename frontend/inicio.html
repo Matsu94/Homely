@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,7 +15,9 @@
   <!-- Archivo CSS con estilos propios -->
   <link rel="stylesheet" href="./login/styles.css" />
 </head>
-<body class="h-screen m-0 bg-[var(--color-base)] text-[var(--color-text)] antialiased" style="font-family: var(--font-body);">
+
+<body class="h-screen m-0 bg-[var(--color-base)] text-[var(--color-text)] antialiased"
+  style="font-family: var(--font-body);">
   <!-- Contenedor principal con dos paneles: izquierdo (secciones) y derecho (selección) -->
   <div class="flex h-full overflow-hidden">
     <!-- Sección izquierda: listado de secciones (siempre visible en <480px) -->
@@ -22,23 +25,39 @@
       <!-- Cabecera con "Secciones" y botón "desplegable" -->
       <div class="h-[65px] p-4 flex items-center justify-between bg-[var(--color-user)] relative shadow-sm">
         <!-- Botón de menú -->
-        <button id="menuBtn" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú" class="px-3 py-1 bg-[var(--color-dark)] text-white rounded hover:bg-opacity-90 base-font-size transition duration-200 font-titles">
+        <button id="menuBtn" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"
+          class="px-3 py-1 bg-[var(--color-dark)] text-white rounded hover:bg-opacity-90 base-font-size transition duration-200 font-titles">
           <svg class="w-4 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
         </button>
 
         <!-- Menú desplegable -->
-        <div id="dropdownMenu" class="hidden absolute left-1 top-10 mt-2 bg-[var(--color-base)] border border-[var(--color-border)] rounded shadow-lg w-40 z-20">
+        <div id="dropdownMenu"
+          class="hidden absolute left-1 top-10 mt-2 bg-[var(--color-base)] border border-[var(--color-border)] rounded shadow-lg w-40 z-20">
           <ul class="flex flex-col p-2">
             <li>
-              <button id="logOut" class="px-3 py-1 base-font-size hover:bg-[var(--color-other)] w-full text-left transition duration-200 font-titles">
+              <button id="logOut"
+                class="px-3 py-1 base-font-size hover:bg-[var(--color-other)] w-full text-left transition duration-200 font-titles">
                 Cerrar sesión
               </button>
             </li>
             <li>
-              <button id="changeBackgroundBtn" class="px-3 py-1 base-font-size hover:bg-[var(--color-other)] w-full text-left transition duration-200 font-titles">
+              <button id="changeBackgroundBtn"
+                class="px-3 py-1 base-font-size hover:bg-[var(--color-other)] w-full text-left transition duration-200 font-titles">
                 Preferencias
+              </button>
+            </li>
+            <li>
+              <button id="groupInvitation"
+                class="px-3 py-1 base-font-size hover:bg-[var(--color-other)] w-full text-left transition duration-200 font-titles">
+                Invitar al Grupo
+              </button>
+            </li>
+            <li>
+              <button id="leaveGroup"
+                class="px-3 py-1 base-font-size hover:bg-[var(--color-other)] w-full text-left transition duration-200 font-titles">
+                Dejar Grupo
               </button>
             </li>
           </ul>
@@ -72,7 +91,7 @@
           </label>
         </div>
       </div>
-      
+
       <!-- Contenedor de la lista de secciones -->
       <div id="sections" class="flex-1 overflow-y-auto bg-[var(--color-chats)] p-0">
       </div>
@@ -86,6 +105,22 @@
     </div>
   </div>
 
+  <div id="groupInvitationCodeContainer"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+    <div
+      class="bg-[--color-base] text-[--color-text] rounded-xl shadow-xl p-6 max-w-4xl relative max-h-[90vh] flex flex-col">
+      <button id="closeCodeWindow"
+        class="absolute top-1 right-2 text-xl font-bold text-[var(--color-headers)]">&times;</button>
+      <div id="codeContent" class="font-bold text-[var(--color-headers)] text-center">
+        <p>Este código tiene duración de 1 día para 1 usuario.</p>
+        <h2 id="code"
+          class="text-xl font-semibold mt-2 mx-auto inline-block bg-[var(--color-other)] border-2 border-[var(--color-user)] px-4 py-2 rounded">
+        </h2>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Cargar la lógica principal con type="module" -->
   <script type="module" src="main.js" defer></script>
   <script src="assets/logout.js" type="module" defer></script>
@@ -93,4 +128,5 @@
   <!-- Modo oscuro y/o iconos-->
   <script src="./login/darkmode&icons.js" type="module" defer></script>
 </body>
+
 </html>

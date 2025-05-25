@@ -184,7 +184,6 @@ class Matias(object):
         res = self.cursor.fetchall()
         return res
     
-    
     def getMembers(self, group_id):
         sql = getMembers
         self.cursor.execute(sql, (group_id,))
@@ -203,6 +202,7 @@ class Matias(object):
 
     # Query to save invitation code
     def saveInvitationCode(self, group_id, invitation_code):
+        print("Saving invitation code:", group_id, invitation_code)
         sql = saveInvitationCode
         self.cursor.execute(sql, (group_id, invitation_code))
         return self.cursor.lastrowid

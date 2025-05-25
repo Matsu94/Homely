@@ -1,4 +1,4 @@
-import { URL, token } from '../constants/const.js';
+import { URL, token, group_id, currentUserId } from '../constants/const.js';
 import * as errors from '../errors/errors.js';
 
 
@@ -42,22 +42,51 @@ export async function registerUser(username, password) {
     }
 }
 
-export async function joinGroup(username, password) {
+export async function getInvitationCode() {
+    try {
+        const response = await fetch(`${URL}/create_group_invitation/${group_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Descomenta si tu endpoint requiere token
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Error al obtener chats: ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+
+        const data = await response.json();
+
+        return data;
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function joinGroup(code) {
     // Unir usuario a grupo mediante invitación
     try {
         const response = await fetch(`${URL}/join_group`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Descomenta si tu endpoint requiere token
             },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ group_code: code })
+
         });
 
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`${errors.joinGroupError} ${response.status} - ${JSON.stringify(errorData)}`);
         }
+
         const data = await response.json();
+        sessionStorage.setItem('group_id', data); // Guardar el ID del grupo al que se unió
+        window.location.href = '../inicio.html';
 
     } catch (error) {
         console.error('Error:', error);
@@ -574,8 +603,11 @@ export async function leaveGroup(group_id) {
 
         if (!response.ok) {
             throw new Error(data.detail);  // Error means they can't leave
-        }
+        }        
 
+        // Clear session storage and redirect
+        sessionStorage.removeItem('group_id');
+        window.location.href = 'components/opcionesUsuarioNuevo.html';
         return { ok: true, data };  // Successful case
 
     } catch (error) {

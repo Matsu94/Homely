@@ -11,7 +11,6 @@ export async function renderWeeklyChores() {
 
     let tasks = await fetchGroupTasks(group_id);
 
-    console.log(tasks);
     // Cargar el contenido de groupTasksSection.html
     fetch("/Homely/frontend/components/groupTasksSection.html")
         .then((response) => response.text())
@@ -88,10 +87,11 @@ export async function renderWeeklyChores() {
             });
 
             const daysContainerBackBtn = document.getElementById("daysContainerBackBtn");
-            if (window.innerWidth > 768 || !phoneDaysContainer.classList.contains("hidden")) {
+            if (window.innerWidth > 768 || phoneDaysContainer.classList.contains("hidden")) {
                 daysContainerBackBtn.classList.add("hidden"); // Hide back button on desktop
             }
             daysContainerBackBtn.addEventListener("click", () => {
+                daysContainerBackBtn.classList.add("hidden"); // Hide back button
                 for (const dayValue of Object.values(daysMap)) {
                     const element = document.getElementById(dayValue);
                     if (!element.classList.contains("hidden")) {
@@ -105,6 +105,7 @@ export async function renderWeeklyChores() {
                 const element = document.getElementById(phoneDayKey);
                 if (element) {
                     element.addEventListener("click", () => {
+                        daysContainerBackBtn.classList.remove("hidden"); // Hide back button
                         const dayContainer = document.getElementById(phoneDayValue);
                         if (dayContainer) {
                             dayContainer.classList.toggle("hidden"); // Toggle visibility of the specific day container

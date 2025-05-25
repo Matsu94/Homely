@@ -197,11 +197,11 @@ def group_info(group_id: int, db: Matias = Depends(get_db), user: str = Depends(
 
 @app.get("/create_group_invitation/{group_id}")
 def create_group_invitation(group_id: int, length = 10, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
-    user_id = user['user_id']
     chars = string.ascii_uppercase + string.digits  # A-Z, 0-9
     invitation_code = ''.join(secrets.choice(chars) for _ in range(length))
+    print(f"Generated invitation code: {invitation_code} for group ID: {group_id}")
     db.saveInvitationCode(group_id, invitation_code)
-    return {"invitation_code": invitation_code} # TENGO QUE CREAR EL STORAGE PARA GROUP ID DEL USER
+    return invitation_code
 
 # Endpoint to add a user to a group (3g)
 # @app.put("/add_users/{group_id}")
@@ -273,13 +273,13 @@ def register_user(user: User, db: Matias = Depends(get_db)):
     return {"message": "User registered successfully", "user_id": user_id}
 
 @app.post("/join_group")
-def join_group(group_code: str, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+def join_group(request: GroupJoinRequest, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    group_code = request.group_code
     user_id = user['user_id']
-    group_id = db.checkInvitationCode(group_code)
+    group_dic = db.checkInvitationCode(group_code)
+    group_id = group_dic.get("group_id") if group_dic else None
     if group_id is None:
         raise HTTPException(status_code=400, detail="Invalid group code")
     db.joinGroup(group_id, user_id)
     db.deleteInvitation(group_code, group_id)
-    # if result == 0: # METER CONDICION, SI USER TIENE GRUPO NO PUEDE ACCEDER A OPCIONESUSERNUEVO
-    #     raise HTTPException(status_code=400, detail="User already in group")
-    return {"message": "User joined group successfully"}
+    return group_id

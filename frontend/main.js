@@ -1,9 +1,9 @@
 
 // import { openCreateGroupForm } from "./utils/openCreateGroupForm.js";
 import { getUsersError } from "./errors/errors.js";
-import { fetchChats} from "./assets/fetching.js";
+import { fetchChats, getInvitationCode, leaveGroup } from "./assets/fetching.js";
 import { openChangeBackgroundGrid } from "./utils/openChangeBackgroundGrid.js";
-import { token } from "./constants/const.js";
+import { token, group_id } from "./constants/const.js";
 import { renderMain } from "./utils/renderMain.js";
 
 // Inicialización
@@ -16,7 +16,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
 
       // const chats = await fetchChats();
-      
+
       await renderMain();
 
       // const createGroupBtn = document.getElementById("createGroupBtn");
@@ -68,6 +68,28 @@ window.addEventListener("DOMContentLoaded", () => {
         userListDiv.classList.add("hidden");
         sections.classList.add("hidden");
       });
+
+      const groupInvitationCodeBtn = document.getElementById("groupInvitation");
+      const groupInvitationCodeContainer = document.getElementById("groupInvitationCodeContainer");
+      const groupInvitationCode = document.getElementById("code");
+      groupInvitationCodeBtn.addEventListener("click", async () => {
+        groupInvitationCodeContainer.classList.toggle("hidden");
+        groupInvitationCode.innerText = await getInvitationCode();
+      });
+
+      const closeCodeWindowBtn = document.getElementById("closeCodeWindow");
+      closeCodeWindowBtn.addEventListener("click", () => {
+        groupInvitationCodeContainer.classList.add("hidden");
+      });
+
+      const leaveGroupBtn = document.getElementById("leaveGroup");
+      leaveGroupBtn.addEventListener("click", () => {
+        if (confirm("¿Estás seguro de que quieres abandonar el grupo?")) {
+          leaveGroup(group_id);
+        }
+      });
+
+
 
     } catch (error) {
       console.error(getUsersError, error);

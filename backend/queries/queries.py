@@ -321,7 +321,7 @@ VALUES (%s, %s)
 """
 
 checkInvitationCode = """
-SELECT group_id from group_invitations WHERE code = %s
+SELECT group_id from group_invitations WHERE invitation_code = %s
 """
 
 joinGroup = """
@@ -331,6 +331,6 @@ VALUES (%s, %s, 0)
 
 deleteInvitation = """
 DELETE FROM group_invitations
-WHERE code = %s
+WHERE invitation_code = %s
 AND group_id = %s
 """

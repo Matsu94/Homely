@@ -14,6 +14,11 @@ class Token(BaseModel):
     user_id: int 
     group_id: Optional[int] = None
     
+
+# Modelo payload para unirse a grupo
+class GroupJoinRequest(BaseModel):
+    group_code: str
+    
 # Modelo de mensaje
 class Message(BaseModel):
     Message_ID: Optional[int] = None
