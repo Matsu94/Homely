@@ -11,6 +11,7 @@ export async function renderWeeklyChores() {
 
     let tasks = await fetchGroupTasks(group_id);
 
+    console.log(tasks);
     // Cargar el contenido de groupTasksSection.html
     fetch("/Homely/frontend/components/groupTasksSection.html")
         .then((response) => response.text())
@@ -67,6 +68,7 @@ export async function renderWeeklyChores() {
             // Inside renderWeeklyChores before looping through tasks:
             Object.entries(weekDates).forEach(([dayKey, dateStr]) => {
                 const container = document.getElementById(dayKey);
+                // console.log(dayKey, dateStr);
                 if (container) {
                     container.setAttribute("data-date", dateStr);
                 }
@@ -130,67 +132,101 @@ export async function renderWeeklyChores() {
                 }
                 return result;
             }
+            // Helper function to check if any completion exists in current month/year
+            function hasCompletionInPeriod(completionsMap, periodType) {
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth();
 
+                for (const [dateStr] of completionsMap) {
+                    const completionDate = new Date(dateStr);
 
+                    if (periodType === "Mensual") {
+                        if (completionDate.getFullYear() === currentYear &&
+                            completionDate.getMonth() === currentMonth) {
+                            return true;
+                        }
+                    }
+                    else if (periodType === "Anual") {
+                        if (completionDate.getFullYear() === currentYear) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            // Updated task rendering logic
             tasks.forEach(task => {
                 const completionsMap = mapCompletions(task);
-
                 const box = document.createElement("div");
                 box.classList.add("w-full", "p-2", "mb-1", "shadow", "text-sm", "cursor-pointer", "text-center");
                 box.textContent = task.title;
 
                 switch (task.periodicity) {
-                    case "Diaria":
-                    case "Mensual":
-                    case "Anual": {
-                        // Style
-                        const colorClass = {
-                            "Diaria": ["bg-[--color-daily]", "hover:bg-[var(--color-hoverdaily)]"],
-                            "Mensual": ["bg-[--color-month]", "hover:bg-[var(--color-hovermonth)]"],
-                            "Anual": ["bg-[--color-year]", "hover:bg-[var(--color-hoveryear)]"]
-                        }[task.periodicity];
-                        box.classList.add(...colorClass);
-
+                    case "Diaria": {
+                        box.classList.add("bg-[--color-daily]", "hover:bg-[var(--color-hoverdaily)]");
                         Object.entries(weekDates).forEach(([dayKey, dateStr]) => {
-                            const dayContainer = document.getElementById(dayKey);
-
                             if (!completionsMap.has(dateStr)) {
                                 const boxClone = box.cloneNode(true);
                                 setupTaskClick(boxClone, task);
-                                dayContainer?.appendChild(boxClone);
+                                document.getElementById(dayKey)?.appendChild(boxClone);
                             }
                         });
+                        break;
+                    }
+
+                    case "Mensual": {
+                        box.classList.add("bg-[--color-month]", "hover:bg-[var(--color-hovermonth)]", "text-black");
+                        // Only show if not completed this month
+                        if (!hasCompletionInPeriod(completionsMap, "Mensual")) {
+                            Object.entries(weekDates).forEach(([dayKey]) => {
+                                const boxClone = box.cloneNode(true);
+                                setupTaskClick(boxClone, task);
+                                document.getElementById(dayKey)?.appendChild(boxClone);
+                            });
+                        }
+                        break;
+                    }
+
+                    case "Anual": {
+                        box.classList.add("bg-[--color-year]", "hover:bg-[var(--color-hoveryear)]", "text-black");
+                        // Only show if not completed this year
+                        if (!hasCompletionInPeriod(completionsMap, "Anual")) {
+                            Object.entries(weekDates).forEach(([dayKey]) => {
+                                const boxClone = box.cloneNode(true);
+                                setupTaskClick(boxClone, task);
+                                document.getElementById(dayKey)?.appendChild(boxClone);
+                            });
+                        }
                         break;
                     }
 
                     case "Dos veces al día": {
                         box.classList.add("bg-[--color-twice]", "hover:bg-[var(--color-hovertwice)]");
                         Object.entries(weekDates).forEach(([dayKey, dateStr]) => {
-                            const dayContainer = document.getElementById(dayKey);
                             const repeats = completionsMap.get(dateStr) || [];
-
                             const count1 = repeats.filter(r => r === 1).length;
                             const count2 = repeats.filter(r => r === 2).length;
 
                             if (count1 === 0) {
                                 const first = box.cloneNode(true);
                                 setupTaskClick(first, task);
-                                dayContainer?.appendChild(first);
+                                document.getElementById(dayKey)?.appendChild(first);
                             }
                             if (count2 === 0) {
                                 const second = box.cloneNode(true);
                                 setupTaskClick(second, task);
-                                dayContainer?.appendChild(second);
+                                document.getElementById(dayKey)?.appendChild(second);
                             }
                         });
                         break;
                     }
 
                     case "Días Especficos": {
-                        box.classList.add("bg-[--color-days]", "hover:bg-[var(--color-hoverdays)]");
+                        box.classList.add("bg-[--color-days]", "hover:bg-[var(--color-hoverdays)]", "text-black");
                         if (task.specific_days) {
                             const days = task.specific_days.split(',').map(d => d.trim());
-
                             days.forEach(spanishDay => {
                                 const containerId = daysMap[spanishDay];
                                 const container = document.getElementById(containerId);
@@ -209,7 +245,7 @@ export async function renderWeeklyChores() {
                     default:
                         if (task.type === "occasional" && task.date_limit) {
                             const taskDate = new Date(task.date_limit);
-                            taskDate.setHours(0, 0, 0, 0); // Set to start of the day
+                            taskDate.setHours(0, 0, 0, 0);
 
                             if ((taskDate >= monday && taskDate <= sunday) && completionsMap.size === 0) {
                                 const weekday = taskDate.toLocaleDateString("es-ES", { weekday: "long" });
@@ -313,30 +349,33 @@ function handleDelete(choreId) {
 }
 
 
-function getCurrentWeekDates() {
+function getCurrentWeekDates() { // REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR
     const today = new Date();
+    // console.log("Today:", today); // yyyy-mm-dd
     const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    const mondayOffset = (dayOfWeek + 5) % 7; // Offset to get back to Monday
-    // EL OFFSET DE GPT ESTABA MAL, ARA TENGO QUE VER SI EL QUE HICE A MANO SE MANTIENE O HAY QUE USAR OTRO METODO PARA PILLAR DIA Y FECHA
+    // console.log("Day of Week:", dayOfWeek); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const mondayOffset = ((dayOfWeek + 6) % 7); // Offset to get back to Monday
+    // console.log("Monday Offset:", mondayOffset); // 0 = Monday, 1 = Tuesday, ..., 6 = Sunday
 
     const monday = new Date(today);
-    monday.setDate(today.getDate() - mondayOffset - 1);
+    monday.setDate(today.getDate() - mondayOffset);
+    // console.log("Monday:", monday); // yyyy-mm-dd
 
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
+    // console.log("Sunday:", sunday); // yyyy-mm-dd
 
     const weekDates = {};
     const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
     for (let i = 0; i < 7; i++) {
         const d = new Date(monday);
-        d.setDate(monday.getDate() + i + 1);
+        d.setDate(monday.getDate() + i);
         weekDates[dayNames[i]] = d.toISOString().split('T')[0]; // yyyy-mm-dd
     }
 
     return { monday, sunday, weekDates };
 }
-
 
 
 function capitalizeFirstLetter(string) {

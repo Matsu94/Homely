@@ -181,10 +181,9 @@ def update_task(task_id: int, task: Task, db: Matias = Depends(get_db), user: st
     return db.updateTask(task_id, task)
 
 
-
-@app.get("/completions/{group_id}")
-def get_completions(group_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
-    return db.getCompletions(group_id)
+@app.get("/get_completed_tasks/{group_id}")
+def get_completions(group_id: int, offset: int = 0, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
+    return db.getCompletions(group_id, offset)
 
 # Endpoint to get members of a group
 @app.get("/get_members/{group_id}")
@@ -199,7 +198,6 @@ def group_info(group_id: int, db: Matias = Depends(get_db), user: str = Depends(
 def create_group_invitation(group_id: int, length = 10, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
     chars = string.ascii_uppercase + string.digits  # A-Z, 0-9
     invitation_code = ''.join(secrets.choice(chars) for _ in range(length))
-    print(f"Generated invitation code: {invitation_code} for group ID: {group_id}")
     db.saveInvitationCode(group_id, invitation_code)
     return invitation_code
 
@@ -233,7 +231,7 @@ def update_name(group_id: int, name: NameUpdate, db: Matias = Depends(get_db), a
 def update_description(group_id: int, description: DescriptionUpdate, db: Matias = Depends(get_db)):
     return db.updateDescription(group_id, description)
 
-# Endpoint to leave a group (5g)
+# Endpoint to leave a group
 @app.delete("/leave_group/{group_id}")
 def leave_group(group_id: int, db: Matias = Depends(get_db), admin: str = Depends(get_current_user)):
     admin_id = admin['user_id']

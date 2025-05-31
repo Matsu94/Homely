@@ -17,9 +17,9 @@
     --color-alert: #dd0088;  /* Color de alerta */
     --color-delete: #dd0025;  /* Color de borrar */
     --color-add: #00dd90;  /* Color de borrar */
-    --color-link: #56F; /* Texto links en modo claro */
     --color-deletehover: #cc0015; /* Color de borrar al pasar el ratón */
     --color-addhover: #00cc80; /* Color de añadir al pasar el ratón */
+    --color-link: #56F; /* Texto links en modo claro */
 
     /* Variables para conmtenedores de días*/
     --color-daily: #ff4a4a; /* Fondo contenedor diario */
@@ -53,9 +53,9 @@
     --color-alert: #dd0088;  /* Color de alerta */
     --color-delete: #750015;  /* borrar en modo oscuro */
     --color-add: #00aa50;  /* Color de borrar */
-    --color-link: #b4b4ff; /* Texto links en modo oscuro */
     --color-deletehover: #650005; /* Color de borrar al pasar el ratón */
     --color-addhover: #009040; /* Color de añadir al pasar el ratón */
+    --color-link: #b4b4ff; /* Texto links en modo oscuro */
   }
   :root[data-theme="highContrast"] {
     --color-user: #4DAF7C;   /* Verde vibrante, pero sin ser fluorescente */

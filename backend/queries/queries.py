@@ -212,6 +212,8 @@ INNER JOIN chores c ON cc.chore_id = c.chore_id
 INNER JOIN users u ON cc.user_id = u.user_id
 INNER JOIN group_members gm ON gm.user_id = u.user_id
 WHERE gm.group_id = %s
+limit 10
+offset %s
 """
 
 insertGroupAdmin = """

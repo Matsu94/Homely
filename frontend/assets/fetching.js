@@ -436,6 +436,29 @@ export async function deleteTask(task_id) {
 }
 
 
+// CARGAR HISTORIAL TAREAS REALIZADAS
+export async function fetchCompletedTasks(offset = 0) {
+    try {
+        const response = await fetch(`${URL}/get_completed_tasks/${group_id}?offset=${offset}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`${errors.getCompletedTasksError}, ${response.status}`);
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 
 //CARGAR INFO GRUPO
 export async function fetchGroupInfo(group_id) {

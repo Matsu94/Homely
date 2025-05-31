@@ -3,6 +3,7 @@ import { formatDate } from './formatDate.js';
 import { renderWeeklyChores } from "./renderWeeklyChores.js";
 import { currentUserId } from "../constants/const.js";
 import { fetchChats } from "../assets/fetching.js";
+import { renderTasksHistory } from "./renderTasksHistory.js"; 
 
 
 export async function renderMain(unreadLookup = {}) {
@@ -112,6 +113,15 @@ export async function renderMain(unreadLookup = {}) {
     logsTitle.innerText = "Historial";
     logsSection.appendChild(logsTitle);
     sections.appendChild(logsSection);
+
+    logsSection.addEventListener("click", () => {
+      renderTasksHistory();
+
+      if (window.innerWidth < 768) {
+        document.getElementById("userListDiv").classList.add("hidden");
+        document.getElementById("sectionWindow").classList.remove("hidden");
+      }
+    });
 
 
     const stockSection = document.createElement('div');

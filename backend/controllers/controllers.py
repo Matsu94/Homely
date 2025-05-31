@@ -178,9 +178,9 @@ class Matias(object):
         return self.cursor.lastrowid
     
     
-    def getCompletions(self, group_id):
+    def getCompletions(self, group_id, offset=0):
         sql = getCompletions
-        self.cursor.execute(sql, (group_id,))
+        self.cursor.execute(sql, (group_id, offset))
         res = self.cursor.fetchall()
         return res
     
@@ -202,7 +202,6 @@ class Matias(object):
 
     # Query to save invitation code
     def saveInvitationCode(self, group_id, invitation_code):
-        print("Saving invitation code:", group_id, invitation_code)
         sql = saveInvitationCode
         self.cursor.execute(sql, (group_id, invitation_code))
         return self.cursor.lastrowid
