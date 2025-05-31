@@ -15,8 +15,7 @@ export async function renderTasksHistory() {
     // Set up modal functionality
     const proofModal = document.getElementById('proofModal');
     const closeModalBtn = document.getElementById('closeProofModal');
-    const proofImage = document.getElementById('proofImageDisplay');
-    
+
     closeModalBtn?.addEventListener('click', () => {
         proofModal.classList.add('hidden');
     });
@@ -59,7 +58,7 @@ async function loadMoreTasks(container, prepend = false) {
         }
 
         const tasks = await fetchCompletedTasks(currentOffset);
-        
+
         if (prepend) {
             // Remove loading indicator
             container.removeChild(container.firstChild);
@@ -74,27 +73,31 @@ async function loadMoreTasks(container, prepend = false) {
 
         // Create document fragment for better performance
         const fragment = document.createDocumentFragment();
-        
+
         tasks.forEach(task => {
             const entry = document.createElement('div');
             entry.className = 'mb-3 text-center text-[--color-text]';
-            
+
             const proofLink = document.createElement('span');
-            proofLink.className = task.proof_image_url 
+            proofLink.className = task.proof_image_url
                 ? 'text-blue-500 hover:underline cursor-pointer ml-1'
                 : 'text-gray-400 ml-1';
             proofLink.textContent = task.proof_image_url ? 'PRUEBA' : 'SIN PRUEBA';
 
             if (task.proof_image_url) {
                 proofLink.addEventListener('click', () => {
-                    proofImage.src = task.proof_image_url;
+                    // Windows path normalization (forward slashes work in browsers)
+                    const normalizedPath = task.proof_image_url.replace(/\\/g, '/');
+                    const proofModal = document.getElementById('proofModal');
+                    const proofImage = document.getElementById('proofImageDisplay');
+                    proofImage.src = `/${normalizedPath}`;
                     proofModal.classList.remove('hidden');
                 });
             }
 
             entry.innerHTML = `${task.username} completó "${task.title}" el ${task.completed_at} - `;
             entry.appendChild(proofLink);
-            
+
             fragment.prepend(entry);
         });
 
@@ -102,10 +105,10 @@ async function loadMoreTasks(container, prepend = false) {
             // Save current scroll position
             const oldHeight = container.scrollHeight;
             const oldScroll = container.scrollTop;
-            
+
             // Prepend new items
             container.prepend(fragment);
-            
+
             // Restore scroll position (adjusted for new content)
             container.scrollTop = container.scrollHeight - oldHeight + oldScroll;
         } else {
@@ -113,7 +116,7 @@ async function loadMoreTasks(container, prepend = false) {
         }
 
         currentOffset += tasks.length;
-        
+
     } catch (error) {
         console.error('Error loading tasks:', error);
         if (prepend && container.firstChild?.textContent === 'Cargando más tareas...') {

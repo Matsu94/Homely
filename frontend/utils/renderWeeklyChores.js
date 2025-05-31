@@ -1,4 +1,4 @@
-import { fetchGroupTasks, completeTask, modifyTask, deleteTask } from "../assets/fetching.js";
+import { fetchGroupTasks, completeTask, modifyTask, deleteTask, uploadImage } from "../assets/fetching.js";
 import { group_id, currentUserId } from "../constants/const.js";
 import { createTaskRow, getTaskDataFromRow } from "./addTaskRow.js";
 
@@ -272,25 +272,42 @@ export async function renderWeeklyChores() {
 
 async function handleComplete(choreId, periodicity) {
     const fileInput = document.getElementById("proofImage");
-    const file = fileInput.files[0];
+    fileInput.classList.remove("hidden"); // Show file input
+    
+    // Create a promise that resolves when the user selects a file or cancels
+    const fileSelected = new Promise((resolve) => {
+        fileInput.onchange = () => resolve(fileInput.files[0]);
+    });
+    
+    // Add a "Skip" button option
+    const skipBtn = document.createElement("button");
+    skipBtn.textContent = "Skip Proof";
+    skipBtn.className = "px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 mx-2";
+    document.getElementById("taskModalContent").appendChild(skipBtn);
+    
+    const skipPromise = new Promise((resolve) => {
+        skipBtn.onclick = () => resolve(null);
+    });
 
-    if (!file) {
-        // Now complete the task using the returned URL
-        await completeTask(choreId, null, periodicity);
+    try {
+        // Wait for either file selection or skip
+        const file = await Promise.race([fileSelected, skipPromise]);
+        
+        let image_url = null;
+        if (file) {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("chore_id", choreId);
+            image_url = await uploadImage(formData);
+        }
+        
+        await completeTask(choreId, image_url, periodicity);
         renderWeeklyChores();
-        return;
+    } finally {
+        skipBtn.remove();
+        fileInput.value = ""; // Reset file input
+        fileInput.classList.add("hidden");
     }
-
-    // Upload the image to backend first
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("chore_id", choreId);
-
-    const image_url = await uploadImage(formData)
-
-    // Now complete the task using the returned URL
-    await completeTask(choreId, image_url, periodicity);
-    renderWeeklyChores();
 }
 
 
@@ -342,8 +359,8 @@ function handleModify(task) {
 
 function handleDelete(choreId) {
     // abrir ventana para eliminar la tarea
-    let deleteTask = confirm("¿Estás seguro de que deseas eliminar esta tarea? \n Esto eliminará la tarea completamente, no solo esta instancia.");
-    if (deleteTask) {
+    let deleteConfirmation = confirm("¿Estás seguro de que deseas eliminar esta tarea? \n Esto eliminará la tarea completamente, no solo esta instancia.");
+    if (deleteConfirmation) {
         deleteTask(choreId);
     }
 }

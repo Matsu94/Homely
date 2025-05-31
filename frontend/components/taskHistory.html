@@ -10,15 +10,15 @@
     <div id="taskHistoryContainer" class="w-full h-full flex flex-col items-center justify-top">
         <h1 class="title-font font-bold mb-8 text-center mt-3">Task Completion History</h1>
         
-        <div id="taskHistoryList" class="w-full max-w-2xl p-6 rounded-lg items-center bg-[var(--color-other)] border-2 border-[var(--color-border)] overflow-y-auto max-h-[85vh]">
+        <div id="taskHistoryList" class="w-full max-w-2xl p-6 rounded-lg items-center bg-[var(--color-other)] border-2 border-[var(--color-text)] overflow-y-auto max-h-[85vh]">
             <!-- Task history items will be dynamically inserted here -->
         </div>
     </div>
 
     <!-- Proof Image Modal -->
     <div id="proofModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-        <div class="bg-white p-4 rounded-lg max-w-4xl max-h-[90vh]">
-            <button id="closeProofModal" class="float-right font-bold text-xl">&times;</button>
+        <div class="bg-[var(--color-other)] p-4 rounded-lg max-w-4xl max-h-[90vh]">
+            <button id="closeProofModal" class="float-right font-bold text-xl ml-3 text-[var(--color-text)]">&times;</button>
             <img id="proofImageDisplay" class="max-w-full max-h-[80vh]" src="" alt="Proof image">
         </div>
     </div>

@@ -12,6 +12,7 @@ import string
 import os
 from uuid import uuid4
 
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -148,10 +149,23 @@ def get_tasks(group_id: int, db: Matias = Depends(get_db), user: str = Depends(g
 
 
 @app.post("/upload_image")
-async def upload_image(chore_id: int = Form(...), file: UploadFile = File(...), user: dict = Depends(get_current_user)):
-    upload_dir = "uploaded_images"
+async def upload_image(
+    chore_id: int = Form(...),
+    file: UploadFile = File(...),
+    user: dict = Depends(get_current_user)
+):
+    
+    # Validate file type
+    allowed_extensions = {'jpg', 'jpeg', 'png', 'gif', 'jfif', 'webp'}
+    ext = file.filename.split(".")[-1].lower()
+    if ext not in allowed_extensions:
+        raise HTTPException(status_code=400, detail="Invalid file type")
+    
+    # Create upload directory at project root (Homely/uploaded_images)
+    upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploaded_images")
     os.makedirs(upload_dir, exist_ok=True)
     
+    # Generate filename and save
     ext = file.filename.split(".")[-1]
     filename = f"{uuid4().hex}_{user['user_id']}_{chore_id}.{ext}"
     file_path = os.path.join(upload_dir, filename)
@@ -160,9 +174,9 @@ async def upload_image(chore_id: int = Form(...), file: UploadFile = File(...), 
         content = await file.read()
         f.write(content)
 
-    image_url = f"/{file_path}"  # Update this if serving images through static route
+    # Return just the relative path for frontend access
+    return {"image_url": f"Homely/uploaded_images/{filename}"}
 
-    return {"image_url": image_url}
 
 @app.post("/complete_task/{task_id}")
 def complete_task(task_id: int, payload: dict, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
