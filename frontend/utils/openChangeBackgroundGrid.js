@@ -9,7 +9,7 @@ export function openChangeBackgroundGrid() {
     const userListDiv = document.getElementById("userListDiv");
     const sections = document.getElementById("sections");
 
-    $.get("/Homely/frontend/components/changeBackgroundGrid.html")
+    $.get("/components/changeBackgroundGrid.html")
         .done((html) => {
             $(sectionWindow).html(html);
 

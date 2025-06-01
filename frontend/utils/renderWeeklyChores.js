@@ -13,7 +13,7 @@ export async function renderWeeklyChores() {
 
     console.log(tasks);
     // Cargar el contenido de groupTasksSection.html
-    fetch("/Homely/frontend/components/groupTasksSection.html")
+    fetch("/components/groupTasksSection.html")
         .then((response) => response.text())
         .then((html) => {
             sectionWindow.innerHTML = html;

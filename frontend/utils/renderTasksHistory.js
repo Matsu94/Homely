@@ -9,7 +9,7 @@ export async function renderTasksHistory() {
     if (!sectionWindow) return;
 
     // Load HTML template
-    const html = await fetch("/Homely/frontend/components/taskHistory.html").then(r => r.text());
+    const html = await fetch("/components/taskHistory.html").then(r => r.text());
     sectionWindow.innerHTML = html;
 
     // Set up modal functionality

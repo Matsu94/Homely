@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", () => {
   async function init() {
     try {
       if (!token) {
-        window.location.href = `/Homely/frontend/login/login.html`;
+        window.location.href = `/login/login.html`;
       }
 
       // const chats = await fetchChats();

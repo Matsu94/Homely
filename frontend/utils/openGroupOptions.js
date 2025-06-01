@@ -18,7 +18,7 @@ export async function openGroupOptions(group_id) {
         const isViewerAdmin = users.some(user => user.user_id === currentUserId && user.is_admin);
 
         // Cargar la estructura HTML (vista de grupo) desde tu componente
-        const response = await fetch("/Homely/frontend/components/viewGroupOptions.html");
+        const response = await fetch("/components/viewGroupOptions.html");
         const html = await response.text();
         sectionWindow.innerHTML = html;
 

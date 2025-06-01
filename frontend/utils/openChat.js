@@ -19,7 +19,7 @@ export async function openChat() {
 
 
     // Cargar el contenido de openChat.html
-    fetch("/Homely/frontend/components/openChat.html")
+    fetch("/components/openChat.html")
         .then((response) => response.text())
         .then((html) => {
             sectionWindow.innerHTML = html;
