@@ -186,7 +186,7 @@ def complete_task(task_id: int, payload: dict, db: Matias = Depends(get_db), use
     return db.completeTask(task_id, user_id, img_url, periodicity)
 
 
-@app.delete("/delete_task/${task_id}")
+@app.delete("/delete_task/{task_id}")
 def delete_task(task_id: int, db: Matias = Depends(get_db), user: str = Depends(get_current_user)):
     return db.deleteTask(task_id)
 

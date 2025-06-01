@@ -320,6 +320,35 @@ export async function createGroup(groupObj, tasks) {
     }
 }
 
+// AGREGAR TAREA
+export async function addTaskGroup(task) {
+    try {
+        const payload = {
+            group_id: group_id,
+            tasks: [task]
+        };
+        const response = await fetch(`${URL}/add_tasks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`${errors.createTaskError} ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+
+        return await response.json();  // If you want to use response data
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+
 // CARGAR TAREAS GRUPO
 export async function fetchGroupTasks(group_id) {
     try {
@@ -626,7 +655,7 @@ export async function leaveGroup(group_id) {
 
         if (!response.ok) {
             throw new Error(data.detail);  // Error means they can't leave
-        }        
+        }
 
         // Clear session storage and redirect
         sessionStorage.removeItem('group_id');

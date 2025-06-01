@@ -273,18 +273,18 @@ export async function renderWeeklyChores() {
 async function handleComplete(choreId, periodicity) {
     const fileInput = document.getElementById("proofImage");
     fileInput.classList.remove("hidden"); // Show file input
-    
+
     // Create a promise that resolves when the user selects a file or cancels
     const fileSelected = new Promise((resolve) => {
         fileInput.onchange = () => resolve(fileInput.files[0]);
     });
-    
+
     // Add a "Skip" button option
     const skipBtn = document.createElement("button");
     skipBtn.textContent = "Skip Proof";
     skipBtn.className = "px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 mx-2";
     document.getElementById("taskModalContent").appendChild(skipBtn);
-    
+
     const skipPromise = new Promise((resolve) => {
         skipBtn.onclick = () => resolve(null);
     });
@@ -292,7 +292,7 @@ async function handleComplete(choreId, periodicity) {
     try {
         // Wait for either file selection or skip
         const file = await Promise.race([fileSelected, skipPromise]);
-        
+
         let image_url = null;
         if (file) {
             const formData = new FormData();
@@ -300,7 +300,7 @@ async function handleComplete(choreId, periodicity) {
             formData.append("chore_id", choreId);
             image_url = await uploadImage(formData);
         }
-        
+
         await completeTask(choreId, image_url, periodicity);
         renderWeeklyChores();
     } finally {
@@ -344,7 +344,8 @@ function handleModify(task) {
     cancelBtn.textContent = "Cancelar Cambios";
     cancelBtn.classList.add("px-4", "py-2", "bg-[var(--color-delete)]", "text-white", "hover:bg-[var(--color-deletehover)]", "rounded", "mt-4");
     cancelBtn.addEventListener("click", async () => {
-        tasksContainer.innerHTML = ""; // Clear tasks container
+        tasksContainer.removeChild(row); // Remove the task row
+        tasksContainer.removeChild(buttonContainer); // Remove the task row
         modalContent.classList.remove("hidden"); // Show original modal content
 
     });
@@ -362,25 +363,59 @@ function handleDelete(choreId) {
     let deleteConfirmation = confirm("¿Estás seguro de que deseas eliminar esta tarea? \n Esto eliminará la tarea completamente, no solo esta instancia.");
     if (deleteConfirmation) {
         deleteTask(choreId);
+        setTimeout(() => {
+            renderWeeklyChores(); // Refresh tasks after deletion
+        }, 50); // Delay in ms (adjust if needed)
     }
 }
 
 
-function getCurrentWeekDates() { // REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR
+// function getCurrentWeekDates() { // REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR REVISAR
+//     const today = new Date();
+//     // console.log("Today:", today); // yyyy-mm-dd
+//     const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+//     // console.log("Day of Week:", dayOfWeek); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+//     let mondayOffset = ((dayOfWeek + 6) % 7); // Offset to get back to Monday
+//     // console.log("Monday Offset:", mondayOffset); // 0 = Monday, 1 = Tuesday, ..., 6 = Sunday
+
+//     // if (dayOfWeek === 0) {
+//     //     // If today is Monday, we want to keep it as the start of the week
+//     //     mondayOffset--; // Set to 7 to get the previous Monday
+//     // }
+//     // console.log("Monday Offset:", mondayOffset); // 0 = Monday, 1 = Tuesday, ..., 6 = Sunday
+//     const monday = new Date(today);
+//     monday.setDate(today.getDate() - mondayOffset);
+//     // console.log("Monday:", monday); // yyyy-mm-dd
+
+//     const sunday = new Date(monday);
+//     sunday.setDate(monday.getDate() + 6);
+//     // console.log("Sunday:", sunday); // yyyy-mm-dd
+
+//     const weekDates = {};
+//     const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+//     for (let i = 0; i < 7; i++) {
+//         const d = new Date(monday);
+//         d.setDate(monday.getDate() + i);
+//         weekDates[dayNames[i]] = d.toISOString().split('T')[0]; // yyyy-mm-dd
+//     }
+
+//     return { monday, sunday, weekDates };
+// }
+
+
+function getCurrentWeekDates() {
     const today = new Date();
-    // console.log("Today:", today); // yyyy-mm-dd
-    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    // console.log("Day of Week:", dayOfWeek); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    const mondayOffset = ((dayOfWeek + 6) % 7); // Offset to get back to Monday
-    // console.log("Monday Offset:", mondayOffset); // 0 = Monday, 1 = Tuesday, ..., 6 = Sunday
+    today.setHours(0, 0, 0, 0); // Normalize to midnight to avoid time issues
+
+    const dayOfWeek = today.getDay(); // 0 (Sun) to 6 (Sat)
+    const daysToMonday = (dayOfWeek + 6) % 7; // Correct offset to Monday
 
     const monday = new Date(today);
-    monday.setDate(today.getDate() - mondayOffset);
-    // console.log("Monday:", monday); // yyyy-mm-dd
+    monday.setDate(today.getDate() - daysToMonday);
 
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
-    // console.log("Sunday:", sunday); // yyyy-mm-dd
 
     const weekDates = {};
     const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -388,10 +423,18 @@ function getCurrentWeekDates() { // REVISAR REVISAR REVISAR REVISAR REVISAR REVI
     for (let i = 0; i < 7; i++) {
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
-        weekDates[dayNames[i]] = d.toISOString().split('T')[0]; // yyyy-mm-dd
+        weekDates[dayNames[i]] = formatDate(d); // Use a safe date formatter
     }
 
     return { monday, sunday, weekDates };
+}
+
+// Helper: Format date as YYYY-MM-DD (timezone-safe)
+function formatDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 }
 
 
