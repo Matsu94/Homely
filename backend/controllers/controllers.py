@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash
 class Matias(object):
     def conecta(self):
         self.db = pymysql.connect(
-            host="host.docker.internal",
+            host="localhost",
             #host="192.168.193.133",
             #port=3306,
             user="root",
