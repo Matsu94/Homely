@@ -1,4 +1,3 @@
-
 // import { openCreateGroupForm } from "./utils/openCreateGroupForm.js";
 import { getUsersError } from "./errors/errors.js";
 import { fetchChats, getInvitationCode, leaveGroup } from "./assets/fetching.js";
@@ -83,9 +82,14 @@ window.addEventListener("DOMContentLoaded", () => {
       });
 
       const leaveGroupBtn = document.getElementById("leaveGroup");
-      leaveGroupBtn.addEventListener("click", () => {
+      leaveGroupBtn.addEventListener("click", async () => {
         if (confirm("¿Estás seguro de que quieres abandonar el grupo?")) {
-          leaveGroup(group_id);
+          const result = await leaveGroup(group_id);
+          if (!result.ok) {
+            alert(result.error); // Display error using an alert
+            console.error("Failed to leave group:", result.error);
+          }
+          // Success is handled by redirection in fetching.js, no else needed here if redirection is the only success action
         }
       });
 

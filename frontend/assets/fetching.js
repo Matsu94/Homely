@@ -5,7 +5,7 @@ import * as errors from '../errors/errors.js';
 export async function registerUser(username, password) {
     // Realizar la solicitud fetch al endpoint /register
     try {
-        const response = await fetch(`${URL}/register`, {
+        const response = await fetch(`/api/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -18,7 +18,7 @@ export async function registerUser(username, password) {
             throw new Error(`${errors.registerError} ${response.status} - ${JSON.stringify(errorData)}`);
         }
 
-        const response2 = await fetch(`${URL}/token`, {
+        const response2 = await fetch(`/api/token`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -44,7 +44,7 @@ export async function registerUser(username, password) {
 
 export async function getInvitationCode() {
     try {
-        const response = await fetch(`${URL}/create_group_invitation/${group_id}`, {
+        const response = await fetch(`/api/create_group_invitation/${group_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export async function getInvitationCode() {
 export async function joinGroup(code) {
     // Unir usuario a grupo mediante invitación
     try {
-        const response = await fetch(`${URL}/join_group`, {
+        const response = await fetch(`/api/join_group`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ export async function joinGroup(code) {
 export async function fetchToken(username, password) {
     // Realizar la solicitud fetch al endpoint /token
     try {
-        const response = await fetch(`${URL}/token`, {
+        const response = await fetch(`/api/token`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -129,7 +129,7 @@ export async function fetchChats() {
     try {
         // Si requieres autenticación
 
-        const response = await fetch(`${URL}/chats`, {
+        const response = await fetch(`/api/chats`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ export async function fetchUnreadMessages() {
     try {
 
         // Fetch messages from the backend
-        const response = await fetch(`${URL}/check_messages`, {
+        const response = await fetch(`/api/check_messages`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -168,7 +168,7 @@ export async function fetchUnreadMessages() {
         const messages = await response.json();
 
         // Send the IDs to the change_state endpoint
-        const changeStateResponse = await fetch(`${URL}/change_state/${2}`, {
+        const changeStateResponse = await fetch(`/api/change_state/${2}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ export async function fetchMessages(offset = 0) {
     try {
 
         // Fetch messages from the backend
-        const response = await fetch(`${URL}/receive_messages/?offset=${offset}`, {
+        const response = await fetch(`/api/receive_messages/?offset=${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ export async function fetchMessages(offset = 0) {
         const messages = await response.json();
 
         // Send the IDs to the change_state endpoint
-        const changeStateResponse = await fetch(`${URL}/change_state/${3}`, {
+        const changeStateResponse = await fetch(`/api/change_state/${3}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -232,7 +232,7 @@ export async function fetchMessages(offset = 0) {
 // mandar mensajes
 export async function postMessage(messageObj) {
     try {
-        const response = await fetch(`${URL}/sendMessage`, {
+        const response = await fetch(`/api/sendMessage`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -255,7 +255,7 @@ export async function postMessage(messageObj) {
 // estados mensaje grupo
 export async function fetchGroupMessageStatus(messageId) {
     try {
-        const response = await fetch(`${URL}/group_message_status/${messageId}`, {
+        const response = await fetch(`/api/group_message_status/${messageId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -276,7 +276,7 @@ export async function fetchGroupMessageStatus(messageId) {
 // crear grupo + tareas
 export async function createGroup(groupObj, tasks) {
     try {
-        const response = await fetch(`${URL}/create_group`, {
+        const response = await fetch(`/api/create_group`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -298,7 +298,7 @@ export async function createGroup(groupObj, tasks) {
             group_id: data,
             tasks: tasks
         };
-        const response2 = await fetch(`${URL}/add_tasks`, {
+        const response2 = await fetch(`/api/add_tasks`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -327,7 +327,7 @@ export async function addTaskGroup(task) {
             group_id: group_id,
             tasks: [task]
         };
-        const response = await fetch(`${URL}/add_tasks`, {
+        const response = await fetch(`/api/add_tasks`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -352,7 +352,7 @@ export async function addTaskGroup(task) {
 // CARGAR TAREAS GRUPO
 export async function fetchGroupTasks(group_id) {
     try {
-        const response = await fetch(`${URL}/get_tasks/${group_id}`, {
+        const response = await fetch(`/api/get_tasks/${group_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -372,7 +372,7 @@ export async function fetchGroupTasks(group_id) {
 // UPLOAD IMAGE
 export async function uploadImage(formData) {
     try {
-        const uploadResponse = await fetch(`${URL}/upload_image`, {
+        const uploadResponse = await fetch(`/api/upload_image`, {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -397,7 +397,7 @@ export async function uploadImage(formData) {
 export async function completeTask(task_id, imgURL, periodicity) {
     // Unir usuario a grupo mediante invitación
     try {
-        const response = await fetch(`${URL}/complete_task/${task_id}`, {
+        const response = await fetch(`/api/complete_task/${task_id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -424,7 +424,7 @@ export async function completeTask(task_id, imgURL, periodicity) {
 
 export async function modifyTask(task_id, taskObj) {
     try {
-        const response = await fetch(`${URL}/update_task/${task_id}`, {
+        const response = await fetch(`/api/update_task/${task_id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -446,7 +446,7 @@ export async function modifyTask(task_id, taskObj) {
 // ELIMINAR TAREA
 export async function deleteTask(task_id) {
     try {
-        const response = await fetch(`${URL}/delete_task/${task_id}`, {
+        const response = await fetch(`/api/delete_task/${task_id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -468,7 +468,7 @@ export async function deleteTask(task_id) {
 // CARGAR HISTORIAL TAREAS REALIZADAS
 export async function fetchCompletedTasks(offset = 0) {
     try {
-        const response = await fetch(`${URL}/get_completed_tasks/${group_id}?offset=${offset}`, {
+        const response = await fetch(`/api/get_completed_tasks/${group_id}?offset=${offset}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -494,7 +494,7 @@ export async function fetchGroupInfo(group_id) {
     try {
         // Si requieres autenticación
 
-        const response = await fetch(`${URL}/group_info/${group_id}`, {
+        const response = await fetch(`/api/group_info/${group_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -517,7 +517,7 @@ export async function updateGroupName(group_id, name) {
     try {
 
 
-        const response = await fetch(`${URL}/update_name/${group_id}`, {
+        const response = await fetch(`/api/update_name/${group_id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -539,7 +539,7 @@ export async function updateGroupName(group_id, name) {
 // CAMBIAR DESCRIPCION GRUPO
 export async function updateGroupDescription(group_id, description) {
     try {
-        const response = await fetch(`${URL}/update_description/${group_id}`, {
+        const response = await fetch(`/api/update_description/${group_id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -561,7 +561,7 @@ export async function updateGroupDescription(group_id, description) {
 //CARGAR USUARIOS DE GRUPO
 export async function fetchUsersFromGroup(group_id) {
     try {
-        const response = await fetch(`${URL}/get_members/${group_id}`, {
+        const response = await fetch(`/api/get_members/${group_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -582,7 +582,7 @@ export async function removeUserFromGroup(group_id, userId) {
     try {
 
 
-        const response = await fetch(`${URL}/remove_user/${group_id}/${userId}`, {
+        const response = await fetch(`/api/remove_user/${group_id}/${userId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -603,7 +603,7 @@ export async function updateUserToAdmin(group_id, userId) {
     try {
 
 
-        const response = await fetch(`${URL}/add_admin/${group_id}/${userId}`, {
+        const response = await fetch(`/api/add_admin/${group_id}/${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -624,7 +624,7 @@ export async function updateUserToAdmin(group_id, userId) {
 // export async function addUsersToGroup(group_id, usersIds) {
 //     try {
 
-//         const response = await fetch(`${URL}/add_users/${group_id}`, {
+//         const response = await fetch(`/api/add_users/${group_id}`, {
 //             method: 'PUT',
 //             headers: {
 //                 'Content-Type': 'application/json',
@@ -643,7 +643,7 @@ export async function updateUserToAdmin(group_id, userId) {
 
 export async function leaveGroup(group_id) {
     try {
-        const response = await fetch(`${URL}/leave_group/${group_id}`, {
+        const response = await fetch(`/api/leave_group/${group_id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

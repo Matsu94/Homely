@@ -1,0 +1,7 @@
+.git
+*.md
+*.log
+__pycache__/
+*.pyc
+node_modules/
+*.swp
