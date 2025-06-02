@@ -11,7 +11,10 @@ import secrets
 import string
 import os
 from uuid import uuid4
+from fastapi.staticfiles import StaticFiles
 
+
+os.makedirs("uploaded_images", exist_ok=True)
 
 app = FastAPI()
 app.add_middleware(
@@ -30,6 +33,8 @@ def get_db():
     finally:
         db.desconecta()
 
+
+app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
 
 # Add WebSocket manager to handle connections
 class ConnectionManager:
@@ -175,7 +180,7 @@ async def upload_image(
         f.write(content)
 
     # Return just the relative path for frontend access
-    return {"image_url": f"Homely/uploaded_images/{filename}"}
+    return {"image_url": f"uploaded_images/{filename}"}
 
 
 @app.post("/complete_task/{task_id}")
