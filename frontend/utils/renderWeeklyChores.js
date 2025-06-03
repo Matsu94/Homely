@@ -406,10 +406,10 @@ function handleDelete(choreId) {
 
 function getCurrentWeekDates() {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to midnight to avoid time issues
+    today.setHours(0, 0, 0, 0); 
 
-    const dayOfWeek = today.getDay(); // 0 (Sun) to 6 (Sat)
-    const daysToMonday = (dayOfWeek + 6) % 7; // Correct offset to Monday
+    const dayOfWeek = today.getDay();
+    const daysToMonday = (dayOfWeek + 6) % 7;
 
     const monday = new Date(today);
     monday.setDate(today.getDate() - daysToMonday);
@@ -423,7 +423,7 @@ function getCurrentWeekDates() {
     for (let i = 0; i < 7; i++) {
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
-        weekDates[dayNames[i]] = formatDate(d); // Use a safe date formatter
+        weekDates[dayNames[i]] = formatDate(d); 
     }
 
     return { monday, sunday, weekDates };

@@ -156,8 +156,6 @@ export async function renderMain(unreadLookup = {}) {
     }
   });
 
-  sections.appendChild(chatSection);
-
   const logsSection = document.createElement('div');
   logsSection.className = "m-1 h-40 sm:h-48 flex items-center justify-center hover:bg-[var(--color-border)] cursor-pointer rounded-lg border-4 border-gray-300";
   const logsTitle = document.createElement('span');
@@ -175,6 +173,8 @@ export async function renderMain(unreadLookup = {}) {
     }
   });
 
+  // sections.appendChild(chatSection);
+
 
   const stockSection = document.createElement('div');
   stockSection.className = "m-1 h-40 sm:h-48 flex items-center justify-center hover:bg-[var(--color-border)] cursor-pointer rounded-lg border-4 border-gray-300";
@@ -182,5 +182,5 @@ export async function renderMain(unreadLookup = {}) {
   stockTitle.className = "title-font text-[var(--color-text)]";
   stockTitle.innerText = "Inventario";
   stockSection.appendChild(stockTitle);
-  sections.appendChild(stockSection);
+  // sections.appendChild(stockSection);
 }
